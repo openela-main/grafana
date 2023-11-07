@@ -1,0 +1,30 @@
+From 3236aa416f6d1b109bff1fdd4127292988fb199c Mon Sep 17 00:00:00 2001
+From: Stan Cox <scox@redhat.com>
+Date: Wed, 22 Jun 2022 17:05:48 +0200
+Subject: [PATCH] redact weak ciphers
+
+
+diff --git a/pkg/api/http_server.go b/pkg/api/http_server.go
+index 2d6e1235b6..f0eff6d2ac 100644
+--- a/pkg/api/http_server.go	2023-01-24 14:44:19.000000000 -0500
++++ b/pkg/api/http_server.go	2023-04-21 13:14:02.684857018 -0400
+@@ -489,13 +489,13 @@
+ 			tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+ 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+ 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+-			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
++//			tls.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+ 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+-			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+-			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
+-			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+-			tls.TLS_RSA_WITH_AES_128_CBC_SHA,
+-			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
++//			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
++//			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
++//			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
++//			tls.TLS_RSA_WITH_AES_128_CBC_SHA,
++//			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+ 		},
+ 	}
+ 

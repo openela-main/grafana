@@ -1,0 +1,61 @@
+commit bae86dbeb0
+Author: Ieva <ieva.vasiljeva@grafana.com>
+Date:   Tue Jun 6 17:45:31 2023 +0100
+
+    Auth: Remove Email Lookup from oauth integrations 9.2 (#898)
+    
+    backport https://github.com/grafana/grafana-private-mirror/pull/894 to 9.3.x
+
+diff --git a/pkg/api/login_oauth.go b/pkg/api/login_oauth.go
+index 22014aee43..af00c56a68 100644
+--- a/pkg/api/login_oauth.go
++++ b/pkg/api/login_oauth.go
+@@ -302,16 +302,17 @@
+ 	connect social.SocialConnector,
+ ) (*user.User, error) {
+ 	oauthLogger.Debug("Syncing Grafana user with corresponding OAuth profile")
++	lookupParams := models.UserLookupParams{}
++	if hs.Cfg.OAuthAllowInsecureEmailLookup {
++		lookupParams.Email = &extUser.Email
++	}
++
+ 	// add/update user in Grafana
+ 	cmd := &models.UpsertUserCommand{
+-		ReqContext:    ctx,
+-		ExternalUser:  extUser,
+-		SignupAllowed: connect.IsSignupAllowed(),
+-		UserLookupParams: models.UserLookupParams{
+-			Email:  &extUser.Email,
+-			UserID: nil,
+-			Login:  nil,
+-		},
++		ReqContext:       ctx,
++		ExternalUser:     extUser,
++		SignupAllowed:    connect.IsSignupAllowed(),
++		UserLookupParams: lookupParams,
+ 	}
+ 
+ 	if err := hs.Login.UpsertUser(ctx.Req.Context(), cmd); err != nil {
+diff --git a/pkg/setting/setting.go b/pkg/setting/setting.go
+index 20e8f78a2f..03aa5c17d8 100644
+--- a/pkg/setting/setting.go
++++ b/pkg/setting/setting.go
+@@ -318,7 +318,8 @@
+ 	AuthProxySyncTTL          int
+ 
+ 	// OAuth
+-	OAuthCookieMaxAge int
++	OAuthCookieMaxAge             int
++	OAuthAllowInsecureEmailLookup bool
+ 
+ 	// JWT Auth
+ 	JWTAuthEnabled                 bool
+@@ -1256,6 +1256,8 @@
+ 		return err
+ 	}
+ 
++	cfg.OAuthAllowInsecureEmailLookup = auth.Key("oauth_allow_insecure_email_lookup").MustBool(false)
++
+ 	const defaultMaxLifetime = "30d"
+ 	maxLifetimeDurationVal := valueAsString(auth, "login_maximum_lifetime_duration", defaultMaxLifetime)
+ 	cfg.LoginMaxLifetime, err = gtime.ParseDuration(maxLifetimeDurationVal)
