@@ -1,0 +1,129 @@
+From 944d07247d07b433777ee6ab46bc55cc1d9debe8 Mon Sep 17 00:00:00 2001
+From: Andreas Gerstmayr <agerstmayr@redhat.com>
+Date: Wed, 22 Jun 2022 17:18:56 +0200
+Subject: [PATCH] remove unused backend dependencies
+
+saml and gofpdf are not used in the OSS edition of Grafana
+after editing `pkg/extensions/main.go`, run `go mod tidy`
+
+diff --git a/go.mod b/go.mod
+index 03c00985c4..faedd337d3 100644
+--- a/go.mod
++++ b/go.mod
+@@ -30,7 +30,6 @@ require (
+ 	github.com/bradfitz/gomemcache v0.0.0-20190913173617-a41fca850d0b
+ 	github.com/centrifugal/centrifuge v0.25.0
+ 	github.com/cortexproject/cortex v1.10.1-0.20211014125347-85c378182d0d
+-	github.com/crewjam/saml v0.4.9
+ 	github.com/davecgh/go-spew v1.1.1
+ 	github.com/denisenkom/go-mssqldb v0.12.0
+ 	github.com/dop251/goja v0.0.0-20210804101310-32956a348b49
+@@ -67,7 +66,6 @@ require (
+ 	github.com/influxdata/line-protocol v0.0.0-20210311194329-9aa0e372d097
+ 	github.com/jmespath/go-jmespath v0.4.0
+ 	github.com/json-iterator/go v1.1.12
+-	github.com/jung-kurt/gofpdf v1.16.2
+ 	github.com/lib/pq v1.10.4
+ 	github.com/linkedin/goavro/v2 v2.10.0
+ 	github.com/m3db/prometheus_remote_client_golang v0.4.4
+@@ -192,7 +190,6 @@ require (
+ 	github.com/josharian/intern v1.0.0 // indirect
+ 	github.com/jpillora/backoff v1.0.0 // indirect
+ 	github.com/mailru/easyjson v0.7.7 // indirect
+-	github.com/mattermost/xml-roundtrip-validator v0.1.0 // indirect
+ 	github.com/mattetti/filebuffer v1.0.1 // indirect
+ 	github.com/mattn/go-runewidth v0.0.9 // indirect
+ 	github.com/miekg/dns v1.1.43 // indirect
+@@ -208,7 +205,7 @@
+ 	github.com/opentracing-contrib/go-stdlib v1.0.0 // indirect
+ 	github.com/pmezard/go-difflib v1.0.0 // indirect
+ 	github.com/prometheus/common/sigv4 v0.1.0 // indirect
+-	github.com/prometheus/exporter-toolkit v0.7.1 // indirect
++	github.com/prometheus/exporter-toolkit v0.7.3 // indirect
+ 	github.com/prometheus/node_exporter v1.0.0-rc.0.0.20200428091818-01054558c289 // indirect
+ 	github.com/prometheus/procfs v0.8.0 // indirect
+ 	github.com/protocolbuffers/txtpbfmt v0.0.0-20220428173112-74888fd59c2b // indirect
+diff --git a/go.sum b/go.sum
+index e3b45a9f35..b98dc78c57 100644
+--- a/go.sum
++++ b/go.sum
+@@ -665,7 +665,6 @@ github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46t
+ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7DoTY=
+ github.com/creack/pty v1.1.9/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
+ github.com/creack/pty v1.1.11/go.mod h1:oKZEueFk5CKHvIhNR5MUki03XCEU+Q6VDXinZuGJ33E=
+-github.com/crewjam/httperr v0.2.0/go.mod h1:Jlz+Sg/XqBQhyMjdDiC+GNNRzZTD7x39Gu3pglZ5oH4=
+ github.com/crossdock/crossdock-go v0.0.0-20160816171116-049aabb0122b/go.mod h1:v9FBN7gdVTpiD/+LZ7Po0UKvROyT87uLVxTHVky/dlQ=
+ github.com/cucumber/godog v0.8.1/go.mod h1:vSh3r/lM+psC1BPXvdkSEuNjmXfpVqrMGYAElF6hxnA=
+ github.com/cyberdelia/templates v0.0.0-20141128023046-ca7fffd4298c/go.mod h1:GyV+0YP4qX0UQ7r2MoYZ+AvYDp12OF5yg4q8rGnyNh4=
+@@ -1376,8 +1375,6 @@ github.com/grafana/grafana-plugin-sdk-go v0.139.0 h1:2RQKM2QpSaWTtaGN6sK+R7LO7zy
+ github.com/grafana/grafana-plugin-sdk-go v0.139.0/go.mod h1:Y+Ps2sesZ62AyCnX+hzrYnyDQYe/ZZl+A8yKLOBm12c=
+ github.com/grafana/prometheus-alertmanager v0.24.1-0.20221012142027-823cd9150293 h1:dJIdfHqu+XjKz+w9zXLqXKPdp6Jjx/UPSOwdeSfWdeQ=
+ github.com/grafana/prometheus-alertmanager v0.24.1-0.20221012142027-823cd9150293/go.mod h1:HVHqK+BVPa/tmL8EMhLCCrPt2a1GdJpEyxr5hgur2UI=
+-github.com/grafana/saml v0.4.9-0.20230102094056-b61b9eb7c8b7 h1:cujJQ3XV6IK7Y96VpYurd2EpI5rfMRFcuyGqUlk+030=
+-github.com/grafana/saml v0.4.9-0.20230102094056-b61b9eb7c8b7/go.mod h1:9Zh6dWPtB3MSzTRt8fIFH60Z351QQ+s7hCU3J/tTlA4=
+ github.com/grafana/thema v0.0.0-20220817114012-ebeee841c104 h1:dYpwFYIChrMfpq3wDa/ZBxAbUGSW5NYmYBeSezhaoao=
+ github.com/grafana/thema v0.0.0-20220817114012-ebeee841c104/go.mod h1:fCV1rqv6XRQg2GfIQ7pU9zdxd5fLRcEBCnrDVwlK+ZY=
+ github.com/grafana/xorm v0.8.3-0.20220614223926-2fcda7565af6 h1:I9dh1MXGX0wGyxdV/Sl7+ugnki4Dfsy8lv2s5Yf887o=
+@@ -1664,8 +1661,6 @@ github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7V
+ github.com/julienschmidt/httprouter v1.3.0/go.mod h1:JR6WtHb+2LUe8TCKY3cZOxFyyO8IZAc4RVcycCCAKdM=
+ github.com/jung-kurt/gofpdf v1.0.0/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
+ github.com/jung-kurt/gofpdf v1.0.3-0.20190309125859-24315acbbda5/go.mod h1:7Id9E/uU8ce6rXgefFLlgrJj/GYY22cpxn+r32jIOes=
+-github.com/jung-kurt/gofpdf v1.16.2 h1:jgbatWHfRlPYiK85qgevsZTHviWXKwB1TTiKdz5PtRc=
+-github.com/jung-kurt/gofpdf v1.16.2/go.mod h1:1hl7y57EsiPAkLbOwzpzqgx1A30nQCk/YmFV8S2vmK0=
+ github.com/jwilder/encoding v0.0.0-20170811194829-b4e1701a28ef/go.mod h1:Ct9fl0F6iIOGgxJ5npU/IUOhOhqlVrGjyIZc8/MagT0=
+ github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0/go.mod h1:1NbS8ALrpOvjt0rHPNLyCIeMtbizbir8U//inJ+zuB8=
+ github.com/karrick/godirwalk v1.8.0/go.mod h1:H5KPZjojv4lE+QYImBI8xVtrBRgYrIVsaRPx4tDPEn4=
+@@ -1787,8 +1782,6 @@ github.com/matryer/is v1.4.0 h1:sosSmIWwkYITGrxZ25ULNDeKiMNzFSr4V/eqBQP0PeE=
+ github.com/matryer/is v1.4.0/go.mod h1:8I/i5uYgLzgsgEloJE1U6xx5HkBQpAZvepWuujKwMRU=
+ github.com/matryer/moq v0.0.0-20190312154309-6cfb0558e1bd/go.mod h1:9ELz6aaclSIGnZBoaSLZ3NAl1VTufbOrXBPvtcy6WiQ=
+ github.com/matryer/moq v0.2.7/go.mod h1:kITsx543GOENm48TUAQyJ9+SAvFSr7iGQXPoth/VUBk=
+-github.com/mattermost/xml-roundtrip-validator v0.1.0 h1:RXbVD2UAl7A7nOTR4u7E3ILa4IbtvKBHw64LDsmu9hU=
+-github.com/mattermost/xml-roundtrip-validator v0.1.0/go.mod h1:qccnGMcpgwcNaBnxqpJpWWUiPNr5H3O8eDgGV9gT5To=
+ github.com/mattetti/filebuffer v1.0.1 h1:gG7pyfnSIZCxdoKq+cPa8T0hhYtD9NxCdI4D7PTjRLM=
+ github.com/mattetti/filebuffer v1.0.1/go.mod h1:YdMURNDOttIiruleeVr6f56OrMc+MydEnTcXwtkxNVs=
+ github.com/mattn/go-colorable v0.0.9/go.mod h1:9vuHe8Xs5qXnSaW/c/ABM9alt+Vo+STaOChaDxuIBZU=
+@@ -2066,7 +2059,6 @@ github.com/peterbourgon/diskv v2.0.1+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR
+ github.com/peterh/liner v1.0.1-0.20180619022028-8c1271fcf47f/go.mod h1:xIteQHvHuaLYG9IFj6mSxM0fCKrs34IrEQUhOYuGPHc=
+ github.com/philhofer/fwd v1.0.0/go.mod h1:gk3iGcWd9+svBvR0sR+KPcfE+RNWozjowpeBVG3ZVNU=
+ github.com/phpdave11/gofpdf v1.4.2/go.mod h1:zpO6xFn9yxo3YLyMvW8HcKWVdbNqgIfOOp2dXMnm1mY=
+-github.com/phpdave11/gofpdi v1.0.7/go.mod h1:vBmVV0Do6hSBHC8uKUQ71JGW+ZGQq74llk/7bXwjDoI=
+ github.com/phpdave11/gofpdi v1.0.12/go.mod h1:vBmVV0Do6hSBHC8uKUQ71JGW+ZGQq74llk/7bXwjDoI=
+ github.com/pierrec/lz4 v1.0.2-0.20190131084431-473cd7ce01a1/go.mod h1:3/3N9NVKO0jef7pBehbT1qWhCMrIgbYNnFAZCqQ5LRc=
+ github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
+@@ -2156,8 +2148,9 @@ github.com/prometheus/common/sigv4 v0.1.0 h1:qoVebwtwwEhS85Czm2dSROY5fTo2PAPEVdD
+ github.com/prometheus/common/sigv4 v0.1.0/go.mod h1:2Jkxxk9yYvCkE5G1sQT7GuEXm57JrvHu9k5YwTjsNtI=
+ github.com/prometheus/exporter-toolkit v0.5.1/go.mod h1:OCkM4805mmisBhLmVFw858QYi3v0wKdY6/UxrT0pZVg=
+ github.com/prometheus/exporter-toolkit v0.6.1/go.mod h1:ZUBIj498ePooX9t/2xtDjeQYwvRpiPP2lh5u4iblj2g=
+-github.com/prometheus/exporter-toolkit v0.7.1 h1:c6RXaK8xBVercEeUQ4tRNL8UGWzDHfvj9dseo1FcK1Y=
+ github.com/prometheus/exporter-toolkit v0.7.1/go.mod h1:ZUBIj498ePooX9t/2xtDjeQYwvRpiPP2lh5u4iblj2g=
++github.com/prometheus/exporter-toolkit v0.7.3 h1:IYBn0CTGi/nYxstdTUKysuSofUNJ3DQW3FmZ/Ub6rgU=
++github.com/prometheus/exporter-toolkit v0.7.3/go.mod h1:ZUBIj498ePooX9t/2xtDjeQYwvRpiPP2lh5u4iblj2g=
+ github.com/prometheus/node_exporter v1.0.0-rc.0.0.20200428091818-01054558c289 h1:dTUS1vaLWq+Y6XKOTnrFpoVsQKLCbCp1OLj24TDi7oM=
+ github.com/prometheus/node_exporter v1.0.0-rc.0.0.20200428091818-01054558c289/go.mod h1:FGbBv5OPKjch+jNUJmEQpMZytIdyW0NdBtWFcfSKusc=
+ github.com/prometheus/procfs v0.0.0-20180125133057-cb4147076ac7/go.mod h1:c3At6R/oaqEKCNdg8wHV1ftS6bRYblBhIjjI8uT2IGk=
+@@ -2696,7 +2688,6 @@ golang.org/x/crypto v0.0.0-20210817164053-32db794688a5/go.mod h1:GvvjBRRGRdwPK5y
+ golang.org/x/crypto v0.0.0-20210921155107-089bfa567519/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
+ golang.org/x/crypto v0.0.0-20211115234514-b4de73f9ece8/go.mod h1:GvvjBRRGRdwPK5ydBHafDWAxML/pGHZbMvKqRZ5+Abc=
+ golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
+-golang.org/x/crypto v0.0.0-20220128200615-198e4374d7ed/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
+ golang.org/x/crypto v0.0.0-20220214200702-86341886e292/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
+ golang.org/x/crypto v0.0.0-20220331220935-ae2d96664a29/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
+ golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4/go.mod h1:IxCIyHEi3zRg3s0A5j5BB6A9Jmi73HwBIUl50j+osU4=
+diff --git a/pkg/extensions/main.go b/pkg/extensions/main.go
+index 72371bdab4..a7bb7abe0f 100644
+--- a/pkg/extensions/main.go
++++ b/pkg/extensions/main.go
+@@ -11,13 +11,11 @@ import (
+ 	_ "github.com/blugelabs/bluge"
+ 	_ "github.com/blugelabs/bluge_segment_api"
+ 	_ "github.com/cortexproject/cortex/pkg/util"
+-	_ "github.com/crewjam/saml"
+ 	_ "github.com/gobwas/glob"
+ 	_ "github.com/googleapis/gax-go/v2"
+ 	_ "github.com/grafana/dskit/backoff"
+ 	_ "github.com/grafana/dskit/flagext"
+ 	_ "github.com/grpc-ecosystem/go-grpc-middleware"
+-	_ "github.com/jung-kurt/gofpdf"
+ 	_ "github.com/linkedin/goavro/v2"
+ 	_ "github.com/m3db/prometheus_remote_client_golang/promremote"
+ 	_ "github.com/pkg/errors"

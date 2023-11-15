@@ -1,0 +1,19 @@
+From 3236aa416f6d1b109bff1fdd4127292988fb199c Mon Sep 17 00:00:00 2001
+From: Stan Cox <scox@redhat.com>
+Date: Wed, 22 Jun 2022 17:05:48 +0200
+Subject: [PATCH] fix alert test
+
+
+diff --git a/pkg/tests/api/alerting/api_alertmanager_test.go b/pkg/tests/api/alerting/api_alertmanager_test.go
+index 2d6e1235b6..f0eff6d2ac 100644
+--- a/pkg/tests/api/alerting/api_alertmanager_test.go	2023-01-24 14:44:19.000000000 -0500
++++ b/pkg/tests/api/alerting/api_alertmanager_test.go	2023-04-13 16:20:51.718515009 -0400
+@@ -210,7 +210,7 @@
+ 		{
+ 			"comment": "string",
+ 			"createdBy": "string",
+-			"endsAt": "2023-03-31T14:17:04.419Z",
++			"endsAt": "2032-03-31T14:17:04.419Z",
+ 			"matchers": [
+ 			  {
+ 				"isRegex": true,
