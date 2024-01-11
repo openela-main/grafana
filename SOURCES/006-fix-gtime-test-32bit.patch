@@ -1,0 +1,17 @@
+diff --git a/pkg/components/gtime/gtime_test.go b/pkg/components/gtime/gtime_test.go
+index 0b1b23a1db..eb9fe718c7 100644
+--- a/pkg/components/gtime/gtime_test.go
++++ b/pkg/components/gtime/gtime_test.go
+@@ -20,9 +20,9 @@ func TestParseInterval(t *testing.T) {
+ 		{inp: "1d", duration: 24 * time.Hour},
+ 		{inp: "1w", duration: 168 * time.Hour},
+ 		{inp: "2w", duration: 2 * 168 * time.Hour},
+-		{inp: "1M", duration: time.Duration(daysInMonth * 24 * int(time.Hour))},
+-		{inp: "1y", duration: time.Duration(daysInYear * 24 * int(time.Hour))},
+-		{inp: "5y", duration: time.Duration(calculateDays5y() * 24 * int(time.Hour))},
++		{inp: "1M", duration: time.Duration(int64(daysInMonth) * 24 * int64(time.Hour))},
++		{inp: "1y", duration: time.Duration(int64(daysInYear) * 24 * int64(time.Hour))},
++		{inp: "5y", duration: time.Duration(int64(calculateDays5y()) * 24 * int64(time.Hour))},
+ 		{inp: "invalid-duration", err: regexp.MustCompile(`^time: invalid duration "?invalid-duration"?$`)},
+ 	}
+ 	for i, tc := range tcs {

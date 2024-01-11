@@ -1,0 +1,24 @@
+diff --git a/pkg/services/provisioning/dashboards/file_reader_linux_test.go b/pkg/services/provisioning/dashboards/file_reader_linux_test.go
+index 3584bbc242..1a89767b69 100644
+--- a/pkg/services/provisioning/dashboards/file_reader_linux_test.go
++++ b/pkg/services/provisioning/dashboards/file_reader_linux_test.go
+@@ -28,6 +28,7 @@ func TestProvisionedSymlinkedFolder(t *testing.T) {
+ 	}
+ 
+ 	want, err := filepath.Abs(containingID)
++	want, err = filepath.EvalSymlinks(want)
+ 
+ 	if err != nil {
+ 		t.Errorf("expected err to be nil")
+diff --git a/pkg/services/provisioning/dashboards/file_reader_test.go b/pkg/services/provisioning/dashboards/file_reader_test.go
+index 946d487d5f..2acef40eed 100644
+--- a/pkg/services/provisioning/dashboards/file_reader_test.go
++++ b/pkg/services/provisioning/dashboards/file_reader_test.go
+@@ -318,6 +318,7 @@ func TestDashboardFileReader(t *testing.T) {
+ 			}
+ 
+ 			absPath1, err := filepath.Abs(unprovision + "/dashboard1.json")
++			absPath1, err = filepath.EvalSymlinks(absPath1)
+ 			So(err, ShouldBeNil)
+ 			// This one does not exist on disk, simulating a deleted file
+ 			absPath2, err := filepath.Abs(unprovision + "/dashboard2.json")

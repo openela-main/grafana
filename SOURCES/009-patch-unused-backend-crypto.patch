@@ -1,0 +1,168 @@
+diff --git a/vendor/golang.org/x/crypto/openpgp/elgamal/elgamal.go b/vendor/golang.org/x/crypto/openpgp/elgamal/elgamal.go
+new file mode 100644
+index 0000000..871e612
+--- /dev/null
++++ b/vendor/golang.org/x/crypto/openpgp/elgamal/elgamal.go
+@@ -0,0 +1,25 @@
++package elgamal
++
++import (
++	"io"
++	"math/big"
++)
++
++// PublicKey represents an ElGamal public key.
++type PublicKey struct {
++	G, P, Y *big.Int
++}
++
++// PrivateKey represents an ElGamal private key.
++type PrivateKey struct {
++	PublicKey
++	X *big.Int
++}
++
++func Encrypt(random io.Reader, pub *PublicKey, msg []byte) (c1, c2 *big.Int, err error) {
++	panic("ElGamal encryption not available")
++}
++
++func Decrypt(priv *PrivateKey, c1, c2 *big.Int) (msg []byte, err error) {
++	panic("ElGamal encryption not available")
++}
+diff --git a/vendor/golang.org/x/crypto/openpgp/packet/packet.go b/vendor/golang.org/x/crypto/openpgp/packet/packet.go
+index 9728d61..9f04c2d 100644
+--- a/vendor/golang.org/x/crypto/openpgp/packet/packet.go
++++ b/vendor/golang.org/x/crypto/openpgp/packet/packet.go
+@@ -16,7 +16,6 @@ import (
+ 	"math/big"
+ 	"math/bits"
+ 
+-	"golang.org/x/crypto/cast5"
+ 	"golang.org/x/crypto/openpgp/errors"
+ )
+ 
+@@ -487,7 +486,7 @@ func (cipher CipherFunction) KeySize() int {
+ 	case Cipher3DES:
+ 		return 24
+ 	case CipherCAST5:
+-		return cast5.KeySize
++		panic("cast5 cipher not available")
+ 	case CipherAES128:
+ 		return 16
+ 	case CipherAES192:
+@@ -517,7 +516,7 @@ func (cipher CipherFunction) new(key []byte) (block cipher.Block) {
+ 	case Cipher3DES:
+ 		block, _ = des.NewTripleDESCipher(key)
+ 	case CipherCAST5:
+-		block, _ = cast5.NewCipher(key)
++		panic("cast5 cipher not available")
+ 	case CipherAES128, CipherAES192, CipherAES256:
+ 		block, _ = aes.NewCipher(key)
+ 	}
+diff --git a/vendor/golang.org/x/crypto/openpgp/packet/symmetrically_encrypted.go b/vendor/golang.org/x/crypto/openpgp/packet/symmetrically_encrypted.go
+index 6126030..3a54c5f 100644
+--- a/vendor/golang.org/x/crypto/openpgp/packet/symmetrically_encrypted.go
++++ b/vendor/golang.org/x/crypto/openpgp/packet/symmetrically_encrypted.go
+@@ -5,13 +5,12 @@
+ package packet
+ 
+ import (
+-	"crypto/cipher"
+ 	"crypto/sha1"
+ 	"crypto/subtle"
+-	"golang.org/x/crypto/openpgp/errors"
+ 	"hash"
+ 	"io"
+-	"strconv"
++
++	"golang.org/x/crypto/openpgp/errors"
+ )
+ 
+ // SymmetricallyEncrypted represents a symmetrically encrypted byte string. The
+@@ -45,46 +44,7 @@ func (se *SymmetricallyEncrypted) parse(r io.Reader) error {
+ // packet can be read. An incorrect key can, with high probability, be detected
+ // immediately and this will result in a KeyIncorrect error being returned.
+ func (se *SymmetricallyEncrypted) Decrypt(c CipherFunction, key []byte) (io.ReadCloser, error) {
+-	keySize := c.KeySize()
+-	if keySize == 0 {
+-		return nil, errors.UnsupportedError("unknown cipher: " + strconv.Itoa(int(c)))
+-	}
+-	if len(key) != keySize {
+-		return nil, errors.InvalidArgumentError("SymmetricallyEncrypted: incorrect key length")
+-	}
+-
+-	if se.prefix == nil {
+-		se.prefix = make([]byte, c.blockSize()+2)
+-		_, err := readFull(se.contents, se.prefix)
+-		if err != nil {
+-			return nil, err
+-		}
+-	} else if len(se.prefix) != c.blockSize()+2 {
+-		return nil, errors.InvalidArgumentError("can't try ciphers with different block lengths")
+-	}
+-
+-	ocfbResync := OCFBResync
+-	if se.MDC {
+-		// MDC packets use a different form of OCFB mode.
+-		ocfbResync = OCFBNoResync
+-	}
+-
+-	s := NewOCFBDecrypter(c.new(key), se.prefix, ocfbResync)
+-	if s == nil {
+-		return nil, errors.ErrKeyIncorrect
+-	}
+-
+-	plaintext := cipher.StreamReader{S: s, R: se.contents}
+-
+-	if se.MDC {
+-		// MDC packets have an embedded hash that we need to check.
+-		h := sha1.New()
+-		h.Write(se.prefix)
+-		return &seMDCReader{in: plaintext, h: h}, nil
+-	}
+-
+-	// Otherwise, we just need to wrap plaintext so that it's a valid ReadCloser.
+-	return seReader{plaintext}, nil
++	panic("OCFB cipher not available")
+ }
+ 
+ // seReader wraps an io.Reader with a no-op Close method.
+@@ -254,37 +214,5 @@ func (c noOpCloser) Close() error {
+ // written.
+ // If config is nil, sensible defaults will be used.
+ func SerializeSymmetricallyEncrypted(w io.Writer, c CipherFunction, key []byte, config *Config) (contents io.WriteCloser, err error) {
+-	if c.KeySize() != len(key) {
+-		return nil, errors.InvalidArgumentError("SymmetricallyEncrypted.Serialize: bad key length")
+-	}
+-	writeCloser := noOpCloser{w}
+-	ciphertext, err := serializeStreamHeader(writeCloser, packetTypeSymmetricallyEncryptedMDC)
+-	if err != nil {
+-		return
+-	}
+-
+-	_, err = ciphertext.Write([]byte{symmetricallyEncryptedVersion})
+-	if err != nil {
+-		return
+-	}
+-
+-	block := c.new(key)
+-	blockSize := block.BlockSize()
+-	iv := make([]byte, blockSize)
+-	_, err = config.Random().Read(iv)
+-	if err != nil {
+-		return
+-	}
+-	s, prefix := NewOCFBEncrypter(block, iv, OCFBNoResync)
+-	_, err = ciphertext.Write(prefix)
+-	if err != nil {
+-		return
+-	}
+-	plaintext := cipher.StreamWriter{S: s, W: ciphertext}
+-
+-	h := sha1.New()
+-	h.Write(iv)
+-	h.Write(iv[blockSize-2:])
+-	contents = &seMDCWriter{w: plaintext, h: h}
+-	return
++	panic("OCFB cipher not available")
+ }
