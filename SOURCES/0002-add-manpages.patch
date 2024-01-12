@@ -1,4 +1,4 @@
-From ecac3e25a416bd66b19bc3074f9583dfd965a919 Mon Sep 17 00:00:00 2001
+From c065b6608a65967bde152557566e0410238714a1 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 17:01:09 +0200
 Subject: [PATCH] add manpages

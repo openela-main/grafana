@@ -1,0 +1,30 @@
+From: ismail simsek <ismailsimsek09@gmail.com>
+Date:   Thu Mar 16 23:16:03 2023 +0100
+Subject: [PATCH] graphite functions xss
+
+commit e59427c074
+    [v9.2.x] Fix xss in Graphite functions tooltip (#810)
+    
+    Fix xss in Graphite functions tooltip (#804)
+    
+    (cherry picked from commit 87aad3f11836f810ee1fdfee27827e746ef36055)
+    
+    Co-authored-by: Ludovic Viaud <ludovic.viaud@gmail.com>
+
+diff --git a/public/app/plugins/datasource/graphite/components/FunctionEditorControls.tsx b/public/app/plugins/datasource/graphite/components/FunctionEditorControls.tsx
+index facd0b2511..d4d41da720 100644
+--- a/public/app/plugins/datasource/graphite/components/FunctionEditorControls.tsx
++++ b/public/app/plugins/datasource/graphite/components/FunctionEditorControls.tsx
+@@ -11,11 +11,9 @@ export interface FunctionEditorControlsProps {
+ }
+ 
+ const FunctionDescription = React.lazy(async () => {
+-  // @ts-ignore
+-  const { default: rst2html } = await import(/* webpackChunkName: "rst2html" */ 'rst2html');
+   return {
+     default(props: { description?: string }) {
+-      return <div dangerouslySetInnerHTML={{ __html: rst2html(props.description ?? '') }} />;
++      return <div>{props.description}</div>;
+     },
+   };
+ });

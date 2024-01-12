@@ -1,4 +1,4 @@
-From 2ad9b1bd641eab2daae9c461656a56c8c2688485 Mon Sep 17 00:00:00 2001
+From 226822e64ed4badb22e18740e6db411617b42bb7 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 16:57:52 +0200
 Subject: [PATCH] update grafana-cli script with distro-specific paths and

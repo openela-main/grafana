@@ -209,13 +209,14 @@ diff --git a/vendor/github.com/prometheus/exporter-toolkit/web/handler.go b/vend
 index ae3ebc03b9..11dbc3c56e 100644
 --- a/vendor/github.com/prometheus/exporter-toolkit/web/handler.go
 +++ b/vendor/github.com/prometheus/exporter-toolkit/web/handler.go
-@@ -16,13 +16,11 @@
+@@ -16,14 +16,11 @@
  package web
  
  import (
 -	"encoding/hex"
  	"fmt"
  	"net/http"
+-	"strings"
  	"sync"
  
  	"github.com/go-kit/log"
@@ -246,7 +247,7 @@ index ae3ebc03b9..11dbc3c56e 100644
  // validateHeaderConfig checks that the provided header configuration is correct.
  // It does not check the validity of all the values, only the ones which are
  // well-defined enumerations.
-@@ -83,55 +65,3 @@ type webHandler struct {
+@@ -67,60 +49,3 @@ type webHandler struct {
  	// only once in parallel as this is CPU intensive.
  	bcryptMtx sync.Mutex
  }
@@ -280,7 +281,12 @@ index ae3ebc03b9..11dbc3c56e 100644
 -			hashedPassword = "$2y$10$QOauhQNbBCuQDKes6eFzPeMqBSjb7Mr5DUmpZ/VcEd00UAV/LDeSi"
 -		}
 -
--		cacheKey := hex.EncodeToString(append(append([]byte(user), []byte(hashedPassword)...), []byte(pass)...))
+-		cacheKey := strings.Join(
+-			[]string{
+-				hex.EncodeToString([]byte(user)),
+-				hex.EncodeToString([]byte(hashedPassword)),
+-				hex.EncodeToString([]byte(pass)),
+-			}, ":")
 -		authOk, ok := u.cache.get(cacheKey)
 -
 -		if !ok {
@@ -289,7 +295,7 @@ index ae3ebc03b9..11dbc3c56e 100644
 -			err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(pass))
 -			u.bcryptMtx.Unlock()
 -
--			authOk = err == nil
+-			authOk = validUser && err == nil
 -			u.cache.set(cacheKey, authOk)
 -		}
 -
@@ -303,10 +309,9 @@ index ae3ebc03b9..11dbc3c56e 100644
 -	http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 -}
 diff --git a/vendor/github.com/prometheus/exporter-toolkit/web/tls_config.go b/vendor/github.com/prometheus/exporter-toolkit/web/tls_config.go
-index 2668964a06..291464ba7e 100644
---- a/vendor/github.com/prometheus/exporter-toolkit/web/tls_config.go
-+++ b/vendor/github.com/prometheus/exporter-toolkit/web/tls_config.go
-@@ -18,12 +18,8 @@ import (
+--- grafana-9.2.2/vendor/github.com/prometheus/exporter-toolkit/web/tls_config.go	2023-03-13 20:00:00.000000000 -0400
++++ /tmp/rpkg/grafana-1-v6p2z4of/grafana-9.2.2/vendor/github.com/prometheus/exporter-toolkit/web/tls_config.go	2023-03-16 13:43:13.300238021 -0400
+@@ -18,12 +18,8 @@
  	"crypto/x509"
  	"fmt"
  	"io/ioutil"
@@ -319,7 +324,7 @@ index 2668964a06..291464ba7e 100644
  	"github.com/pkg/errors"
  	config_util "github.com/prometheus/common/config"
  	"gopkg.in/yaml.v2"
-@@ -177,93 +173,6 @@ func ConfigToTLSConfig(c *TLSStruct) (*tls.Config, error) {
+@@ -177,98 +173,6 @@
  	return cfg, nil
  }
  
@@ -386,7 +391,12 @@ index 2668964a06..291464ba7e 100644
 -	// Set the GetConfigForClient method of the HTTPS server so that the config
 -	// and certs are reloaded on new connections.
 -	server.TLSConfig.GetConfigForClient = func(*tls.ClientHelloInfo) (*tls.Config, error) {
--		return getTLSConfig(tlsConfigPath)
+-		config, err := getTLSConfig(tlsConfigPath)
+-		if err != nil {
+-			return nil, err
+-		}
+-		config.NextProtos = server.TLSConfig.NextProtos
+-		return config, nil
 -	}
 -	return server.ServeTLS(l, "", "")
 -}
@@ -413,7 +423,7 @@ index 2668964a06..291464ba7e 100644
  type cipher uint16
  
  func (c *cipher) UnmarshalYAML(unmarshal func(interface{}) error) error {
-@@ -346,11 +255,3 @@ func (tv *tlsVersion) MarshalYAML() (interface{}, error) {
+@@ -351,11 +255,3 @@
  	}
  	return fmt.Sprintf("%v", tv), nil
  }
@@ -425,3 +435,722 @@ index 2668964a06..291464ba7e 100644
 -func Listen(server *http.Server, tlsConfigPath string, logger log.Logger) error {
 -	return ListenAndServe(server, tlsConfigPath, logger)
 -}
+diff a/vendor/github.com/go-git/go-git/v5/options.go b/vendor/github.com/go-git/go-git/v5/options.go
+--- a/vendor/github.com/go-git/go-git/v5/options.go	2022-10-30 20:00:00.000000000 -0400
++++ b/vendor/github.com/go-git/go-git/v5/options.go	2022-12-20 10:24:35.162653691 -0500
+@@ -7,7 +7,7 @@
+ 	"strings"
+ 	"time"
+ 
+-	"github.com/ProtonMail/go-crypto/openpgp"
++	//	"github.com/ProtonMail/go-crypto/openpgp"
+ 	"github.com/go-git/go-git/v5/config"
+ 	"github.com/go-git/go-git/v5/plumbing"
+ 	"github.com/go-git/go-git/v5/plumbing/object"
+@@ -434,7 +434,7 @@
+ 	// SignKey denotes a key to sign the commit with. A nil value here means the
+ 	// commit will not be signed. The private key must be present and already
+ 	// decrypted.
+-	SignKey *openpgp.Entity
++	//	SignKey *openpgp.Entity
+ }
+ 
+ // Validate validates the fields and sets the default values.
+@@ -517,7 +517,7 @@
+ 	Message string
+ 	// SignKey denotes a key to sign the tag with. A nil value here means the tag
+ 	// will not be signed. The private key must be present and already decrypted.
+-	SignKey *openpgp.Entity
++	//	SignKey *openpgp.Entity
+ }
+ 
+ // Validate validates the fields and sets the default values.
+diff a/vendor/github.com/go-git/go-git/v5/plumbing/object/commit.go b/vendor/github.com/go-git/go-git/v5/plumbing/object/commit.go
+--- a/vendor/github.com/go-git/go-git/v5/plumbing/object/commit.go	2022-10-30 20:00:00.000000000 -0400
++++ b/vendor/github.com/go-git/go-git/v5/plumbing/object/commit.go	2022-12-20 10:33:26.630073026 -0500
+@@ -9,7 +9,7 @@
+ 	"io"
+ 	"strings"
+ 
+-	"github.com/ProtonMail/go-crypto/openpgp"
++	//	"github.com/ProtonMail/go-crypto/openpgp"
+ 
+ 	"github.com/go-git/go-git/v5/plumbing"
+ 	"github.com/go-git/go-git/v5/plumbing/storer"
+@@ -354,7 +354,8 @@
+ 
+ // Verify performs PGP verification of the commit with a provided armored
+ // keyring and returns openpgp.Entity associated with verifying key on success.
+-func (c *Commit) Verify(armoredKeyRing string) (*openpgp.Entity, error) {
++func (c *Commit) Verify(armoredKeyRing string) (*int, error) {
++	/*
+ 	keyRingReader := strings.NewReader(armoredKeyRing)
+ 	keyring, err := openpgp.ReadArmoredKeyRing(keyRingReader)
+ 	if err != nil {
+@@ -375,6 +376,8 @@
+ 	}
+ 
+ 	return openpgp.CheckArmoredDetachedSignature(keyring, er, signature, nil)
++	*/
++	return nil,  nil
+ }
+ 
+ func indent(t string) string {
+diff a/vendor/github.com/go-git/go-git/v5/plumbing/object/tag.go b/vendor/github.com/go-git/go-git/v5/plumbing/object/tag.go
+--- a/vendor/github.com/go-git/go-git/v5/plumbing/object/tag.go	2022-10-30 20:00:00.000000000 -0400
++++ b/vendor/github.com/go-git/go-git/v5/plumbing/object/tag.go	2022-12-20 10:37:05.542949113 -0500
+@@ -6,9 +6,9 @@
+ 	"fmt"
+ 	"io"
+ 	stdioutil "io/ioutil"
+-	"strings"
++	//	"strings"
+ 
+-	"github.com/ProtonMail/go-crypto/openpgp"
++	//	"github.com/ProtonMail/go-crypto/openpgp"
+ 
+ 	"github.com/go-git/go-git/v5/plumbing"
+ 	"github.com/go-git/go-git/v5/plumbing/storer"
+@@ -284,7 +284,8 @@
+ 
+ // Verify performs PGP verification of the tag with a provided armored
+ // keyring and returns openpgp.Entity associated with verifying key on success.
+-func (t *Tag) Verify(armoredKeyRing string) (*openpgp.Entity, error) {
++func (t *Tag) Verify(armoredKeyRing string) (*int, error) {
++	/*
+ 	keyRingReader := strings.NewReader(armoredKeyRing)
+ 	keyring, err := openpgp.ReadArmoredKeyRing(keyRingReader)
+ 	if err != nil {
+@@ -305,6 +306,8 @@
+ 	}
+ 
+ 	return openpgp.CheckArmoredDetachedSignature(keyring, er, signature, nil)
++	*/
++	return nil, nil
+ }
+ 
+ // TagIter provides an iterator for a set of tags.
+diff a/vendor/github.com/go-git/go-git/v5/plumbing/transport/ssh/auth_method.go b/vendor/github.com/go-git/go-git/v5/plumbing/transport/ssh/auth_method.go
+--- a/vendor/github.com/go-git/go-git/v5/plumbing/transport/ssh/auth_method.go	2022-10-30 20:00:00.000000000 -0400
++++ b/vendor/github.com/go-git/go-git/v5/plumbing/transport/ssh/auth_method.go	2022-12-20 13:42:13.659296361 -0500
+@@ -1,6 +1,7 @@
+ package ssh
+ 
+ import (
++	/*
+ 	"errors"
+ 	"fmt"
+ 	"io/ioutil"
+@@ -14,6 +15,7 @@
+ 	sshagent "github.com/xanzy/ssh-agent"
+ 	"golang.org/x/crypto/ssh"
+ 	"golang.org/x/crypto/ssh/knownhosts"
++	*/
+ )
+ 
+ const DefaultUsername = "git"
+@@ -22,10 +24,12 @@
+ // must implement. The clientConfig method returns the ssh client
+ // configuration needed to establish an ssh connection.
+ type AuthMethod interface {
++	/*
+ 	transport.AuthMethod
+ 	// ClientConfig should return a valid ssh.ClientConfig to be used to create
+ 	// a connection to the SSH server.
+ 	ClientConfig() (*ssh.ClientConfig, error)
++	*/
+ }
+ 
+ // The names of the AuthMethod implementations. To be returned by the
+@@ -42,78 +46,101 @@
+ // KeyboardInteractive implements AuthMethod by using a
+ // prompt/response sequence controlled by the server.
+ type KeyboardInteractive struct {
++	/*
+ 	User      string
+ 	Challenge ssh.KeyboardInteractiveChallenge
+ 	HostKeyCallbackHelper
++	*/
+ }
+ 
+ func (a *KeyboardInteractive) Name() string {
+-	return KeyboardInteractiveName
++	//	return KeyboardInteractiveName
++	return ""
+ }
+ 
+ func (a *KeyboardInteractive) String() string {
+-	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	//	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++ 	return ""
+ }
+ 
+-func (a *KeyboardInteractive) ClientConfig() (*ssh.ClientConfig, error) {
++func (a *KeyboardInteractive) ClientConfig() (*int, error) {
++	/*
+ 	return a.SetHostKeyCallback(&ssh.ClientConfig{
+ 		User: a.User,
+ 		Auth: []ssh.AuthMethod{
+ 			a.Challenge,
+ 		},
+ 	})
++	*/
++	return nil, nil
+ }
+ 
+ // Password implements AuthMethod by using the given password.
+ type Password struct {
++	/*
+ 	User     string
+ 	Password string
+ 	HostKeyCallbackHelper
++	*/
+ }
+ 
+ func (a *Password) Name() string {
+-	return PasswordName
++	//	return PasswordName
++	return ""
+ }
+ 
+ func (a *Password) String() string {
+-	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	//	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	return ""
+ }
+ 
+-func (a *Password) ClientConfig() (*ssh.ClientConfig, error) {
++func (a *Password) ClientConfig() (*int, error) {
++	/*
+ 	return a.SetHostKeyCallback(&ssh.ClientConfig{
+ 		User: a.User,
+ 		Auth: []ssh.AuthMethod{ssh.Password(a.Password)},
+ 	})
++	*/
++	return nil, nil
+ }
+ 
+ // PasswordCallback implements AuthMethod by using a callback
+ // to fetch the password.
+ type PasswordCallback struct {
++	/*
+ 	User     string
+ 	Callback func() (pass string, err error)
+ 	HostKeyCallbackHelper
++	*/
+ }
+ 
+ func (a *PasswordCallback) Name() string {
+-	return PasswordCallbackName
++	//	return PasswordCallbackName
++	return ""
+ }
+ 
+ func (a *PasswordCallback) String() string {
+-	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	//	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	return ""
+ }
+ 
+-func (a *PasswordCallback) ClientConfig() (*ssh.ClientConfig, error) {
++func (a *PasswordCallback) ClientConfig() (*int, error) {
++	/*
+ 	return a.SetHostKeyCallback(&ssh.ClientConfig{
+ 		User: a.User,
+ 		Auth: []ssh.AuthMethod{ssh.PasswordCallback(a.Callback)},
+ 	})
++	*/
++	return nil, nil
+ }
+ 
+ // PublicKeys implements AuthMethod by using the given key pairs.
+ type PublicKeys struct {
++	/*
+ 	User   string
+ 	Signer ssh.Signer
+ 	HostKeyCallbackHelper
++	*/
+ }
+ 
+ // NewPublicKeys returns a PublicKeys from a PEM encoded private key. An
+@@ -121,6 +148,7 @@
+ // encrypted PEM block otherwise password should be empty. It supports RSA
+ // (PKCS#1), PKCS#8, DSA (OpenSSL), and ECDSA private keys.
+ func NewPublicKeys(user string, pemBytes []byte, password string) (*PublicKeys, error) {
++	/*
+ 	signer, err := ssh.ParsePrivateKey(pemBytes)
+ 	if _, ok := err.(*ssh.PassphraseMissingError); ok {
+ 		signer, err = ssh.ParsePrivateKeyWithPassphrase(pemBytes, []byte(password))
+@@ -129,36 +157,47 @@
+ 		return nil, err
+ 	}
+ 	return &PublicKeys{User: user, Signer: signer}, nil
++	*/
++	return nil, nil
+ }
+ 
+ // NewPublicKeysFromFile returns a PublicKeys from a file containing a PEM
+ // encoded private key. An encryption password should be given if the pemBytes
+ // contains a password encrypted PEM block otherwise password should be empty.
+ func NewPublicKeysFromFile(user, pemFile, password string) (*PublicKeys, error) {
++	/*
+ 	bytes, err := ioutil.ReadFile(pemFile)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+ 
+ 	return NewPublicKeys(user, bytes, password)
++	*/
++	return nil, nil
+ }
+ 
+ func (a *PublicKeys) Name() string {
+-	return PublicKeysName
++	//	return PublicKeysName
++	return ""
+ }
+ 
+ func (a *PublicKeys) String() string {
+-	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	//	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	return ""
+ }
+ 
+-func (a *PublicKeys) ClientConfig() (*ssh.ClientConfig, error) {
++func (a *PublicKeys) ClientConfig() (*int, error) {
++	/*
+ 	return a.SetHostKeyCallback(&ssh.ClientConfig{
+ 		User: a.User,
+ 		Auth: []ssh.AuthMethod{ssh.PublicKeys(a.Signer)},
+ 	})
++	*/
++	return nil, nil
+ }
+ 
+ func username() (string, error) {
++	/*
+ 	var username string
+ 	if user, err := user.Current(); err == nil {
+ 		username = user.Username
+@@ -171,20 +210,25 @@
+ 	}
+ 
+ 	return username, nil
++	*/
++	return "",  nil
+ }
+ 
+ // PublicKeysCallback implements AuthMethod by asking a
+ // ssh.agent.Agent to act as a signer.
+ type PublicKeysCallback struct {
++	/*
+ 	User     string
+ 	Callback func() (signers []ssh.Signer, err error)
+ 	HostKeyCallbackHelper
++	*/
+ }
+ 
+ // NewSSHAgentAuth returns a PublicKeysCallback based on a SSH agent, it opens
+ // a pipe with the SSH agent and uses the pipe as the implementer of the public
+ // key callback function.
+ func NewSSHAgentAuth(u string) (*PublicKeysCallback, error) {
++	/*
+ 	var err error
+ 	if u == "" {
+ 		u, err = username()
+@@ -202,21 +246,28 @@
+ 		User:     u,
+ 		Callback: a.Signers,
+ 	}, nil
++	*/
++	return nil, nil
+ }
+ 
+ func (a *PublicKeysCallback) Name() string {
+-	return PublicKeysCallbackName
++	   //	return PublicKeysCallbackName
++	   return ""
+ }
+ 
+ func (a *PublicKeysCallback) String() string {
+-	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	//	return fmt.Sprintf("user: %s, name: %s", a.User, a.Name())
++	return ""
+ }
+ 
+-func (a *PublicKeysCallback) ClientConfig() (*ssh.ClientConfig, error) {
++func (a *PublicKeysCallback) ClientConfig() (*int, error) {
++	/*	
+ 	return a.SetHostKeyCallback(&ssh.ClientConfig{
+ 		User: a.User,
+ 		Auth: []ssh.AuthMethod{ssh.PublicKeysCallback(a.Callback)},
+ 	})
++	*/
++	return nil, nil
+ }
+ 
+ // NewKnownHostsCallback returns ssh.HostKeyCallback based on a file based on a
+@@ -229,7 +280,8 @@
+ // If SSH_KNOWN_HOSTS is not set the following file locations will be used:
+ //   ~/.ssh/known_hosts
+ //   /etc/ssh/ssh_known_hosts
+-func NewKnownHostsCallback(files ...string) (ssh.HostKeyCallback, error) {
++func NewKnownHostsCallback(files ...string) (*int, error) {
++	/*
+ 	var err error
+ 
+ 	if len(files) == 0 {
+@@ -243,9 +295,12 @@
+ 	}
+ 
+ 	return knownhosts.New(files...)
++	*/
++	return nil, nil
+ }
+ 
+-func getDefaultKnownHostsFiles() ([]string, error) {
++func getDefaultKnownHostsFiles() (*int, error) {
++	/*
+ 	files := filepath.SplitList(os.Getenv("SSH_KNOWN_HOSTS"))
+ 	if len(files) != 0 {
+ 		return files, nil
+@@ -260,9 +315,12 @@
+ 		filepath.Join(homeDirPath, "/.ssh/known_hosts"),
+ 		"/etc/ssh/ssh_known_hosts",
+ 	}, nil
++	*/
++	return nil, nil
+ }
+ 
+-func filterKnownHostsFiles(files ...string) ([]string, error) {
++func filterKnownHostsFiles(files ...string) (*int, error) {
++	/*
+ 	var out []string
+ 	for _, file := range files {
+ 		_, err := os.Stat(file)
+@@ -281,6 +339,8 @@
+ 	}
+ 
+ 	return out, nil
++	*/
++	return nil, nil
+ }
+ 
+ // HostKeyCallbackHelper is a helper that provides common functionality to
+@@ -289,13 +349,14 @@
+ 	// HostKeyCallback is the function type used for verifying server keys.
+ 	// If nil default callback will be create using NewKnownHostsCallback
+ 	// without argument.
+-	HostKeyCallback ssh.HostKeyCallback
++	//	HostKeyCallback ssh.HostKeyCallback
+ }
+ 
+ // SetHostKeyCallback sets the field HostKeyCallback in the given cfg. If
+ // HostKeyCallback is empty a default callback is created using
+ // NewKnownHostsCallback.
+-func (m *HostKeyCallbackHelper) SetHostKeyCallback(cfg *ssh.ClientConfig) (*ssh.ClientConfig, error) {
++func (m *HostKeyCallbackHelper) SetHostKeyCallback(*int) (*int, error) {
++	/*
+ 	var err error
+ 	if m.HostKeyCallback == nil {
+ 		if m.HostKeyCallback, err = NewKnownHostsCallback(); err != nil {
+@@ -305,4 +366,6 @@
+ 
+ 	cfg.HostKeyCallback = m.HostKeyCallback
+ 	return cfg, nil
++	*/
++	return nil, nil
+ }
+diff a/vendor/github.com/go-git/go-git/v5/plumbing/transport/ssh/common.go b/vendor/github.com/go-git/go-git/v5/plumbing/transport/ssh/common.go
+--- a/vendor/github.com/go-git/go-git/v5/plumbing/transport/ssh/common.go	2022-10-30 20:00:00.000000000 -0400
++++ b/vendor/github.com/go-git/go-git/v5/plumbing/transport/ssh/common.go	2022-12-20 14:01:25.825788050 -0500
+@@ -2,18 +2,22 @@
+ package ssh
+ 
+ import (
+-	"context"
++	//	"context"
+ 	"fmt"
++	/*
+ 	"reflect"
+ 	"strconv"
+ 	"strings"
++	*/
+ 
+ 	"github.com/go-git/go-git/v5/plumbing/transport"
+ 	"github.com/go-git/go-git/v5/plumbing/transport/internal/common"
+ 
+ 	"github.com/kevinburke/ssh_config"
++	/*
+ 	"golang.org/x/crypto/ssh"
+ 	"golang.org/x/net/proxy"
++	*/
+ )
+ 
+ // DefaultClient is the default SSH client.
+@@ -28,23 +32,26 @@
+ }
+ 
+ // NewClient creates a new SSH client with an optional *ssh.ClientConfig.
+-func NewClient(config *ssh.ClientConfig) transport.Transport {
+-	return common.NewClient(&runner{config: config})
++func NewClient(*int) transport.Transport {
++	//	return common.NewClient(&runner{config: config})
++	return nil
+ }
+ 
+ // DefaultAuthBuilder is the function used to create a default AuthMethod, when
+ // the user doesn't provide any.
+ var DefaultAuthBuilder = func(user string) (AuthMethod, error) {
+-	return NewSSHAgentAuth(user)
++	//	return NewSSHAgentAuth(user)
++	return nil, nil
+ }
+ 
+ const DefaultPort = 22
+ 
+ type runner struct {
+-	config *ssh.ClientConfig
++	//	config *ssh.ClientConfig
+ }
+ 
+ func (r *runner) Command(cmd string, ep *transport.Endpoint, auth transport.AuthMethod) (common.Command, error) {
++	/*
+ 	c := &command{command: cmd, endpoint: ep, config: r.config}
+ 	if auth != nil {
+ 		c.setAuth(auth)
+@@ -54,9 +61,12 @@
+ 		return nil, err
+ 	}
+ 	return c, nil
++	*/
++	return nil, nil
+ }
+ 
+ type command struct {
++	/*
+ 	*ssh.Session
+ 	connected bool
+ 	command   string
+@@ -64,24 +74,29 @@
+ 	client    *ssh.Client
+ 	auth      AuthMethod
+ 	config    *ssh.ClientConfig
++	*/
+ }
+ 
+ func (c *command) setAuth(auth transport.AuthMethod) error {
++	/*
+ 	a, ok := auth.(AuthMethod)
+ 	if !ok {
+ 		return transport.ErrInvalidAuthMethod
+ 	}
+ 
+ 	c.auth = a
++	*/
+ 	return nil
+ }
+ 
+ func (c *command) Start() error {
+-	return c.Session.Start(endpointToCommand(c.command, c.endpoint))
++	//	return c.Session.Start(endpointToCommand(c.command, c.endpoint))
++	return nil
+ }
+ 
+ // Close closes the SSH session and connection.
+ func (c *command) Close() error {
++	/*
+ 	if !c.connected {
+ 		return nil
+ 	}
+@@ -99,6 +114,8 @@
+ 	}
+ 
+ 	return err
++	*/
++	return nil
+ }
+ 
+ // connect connects to the SSH server, unless a AuthMethod was set with
+@@ -106,6 +123,7 @@
+ // it connects to a SSH agent, using the address stored in the SSH_AUTH_SOCK
+ // environment var.
+ func (c *command) connect() error {
++	/*
+ 	if c.connected {
+ 		return transport.ErrAlreadyConnected
+ 	}
+@@ -136,10 +154,12 @@
+ 	}
+ 
+ 	c.connected = true
++	*/
+ 	return nil
+ }
+ 
+-func dial(network, addr string, config *ssh.ClientConfig) (*ssh.Client, error) {
++func dial(network, addr string, config *int) (*int, error) {
++	/*
+ 	var (
+ 		ctx    = context.Background()
+ 		cancel context.CancelFunc
+@@ -160,9 +180,12 @@
+ 		return nil, err
+ 	}
+ 	return ssh.NewClient(c, chans, reqs), nil
++	*/
++	return nil, nil
+ }
+ 
+ func (c *command) getHostWithPort() string {
++	/*
+ 	if addr, found := c.doGetHostWithPortFromSSHConfig(); found {
+ 		return addr
+ 	}
+@@ -174,9 +197,12 @@
+ 	}
+ 
+ 	return fmt.Sprintf("%s:%d", host, port)
++	*/
++	return ""
+ }
+ 
+ func (c *command) doGetHostWithPortFromSSHConfig() (addr string, found bool) {
++	/*
+ 	if DefaultSSHConfig == nil {
+ 		return
+ 	}
+@@ -202,12 +228,13 @@
+ 	}
+ 
+ 	addr = fmt.Sprintf("%s:%d", host, port)
++	*/
+ 	return
+ }
+ 
+ func (c *command) setAuthFromEndpoint() error {
+ 	var err error
+-	c.auth, err = DefaultAuthBuilder(c.endpoint.User)
++	//	c.auth, err = DefaultAuthBuilder(c.endpoint.User)
+ 	return err
+ }
+ 
+@@ -215,7 +242,8 @@
+ 	return fmt.Sprintf("%s '%s'", cmd, ep.Path)
+ }
+ 
+-func overrideConfig(overrides *ssh.ClientConfig, c *ssh.ClientConfig) {
++func overrideConfig(overrides *int, c *int) {
++	/*
+ 	if overrides == nil {
+ 		return
+ 	}
+@@ -232,4 +260,5 @@
+ 	}
+ 
+ 	*c = vc.Interface().(ssh.ClientConfig)
++	*/
+ }
+diff a/vendor/github.com/go-git/go-git/v5/repository.go b/vendor/github.com/go-git/go-git/v5/repository.go
+--- a/vendor/github.com/go-git/go-git/v5/repository.go	2022-10-30 20:00:00.000000000 -0400
++++ b/vendor/github.com/go-git/go-git/v5/repository.go	2022-12-20 13:46:57.584666477 -0500
+@@ -13,7 +13,7 @@
+ 	"strings"
+ 	"time"
+ 
+-	"github.com/ProtonMail/go-crypto/openpgp"
++	//	"github.com/ProtonMail/go-crypto/openpgp"
+ 	"github.com/go-git/go-billy/v5"
+ 	"github.com/go-git/go-billy/v5/osfs"
+ 	"github.com/go-git/go-billy/v5/util"
+@@ -706,6 +706,7 @@
+ 		Target:     hash,
+ 	}
+ 
++	/*
+ 	if opts.SignKey != nil {
+ 		sig, err := r.buildTagSignature(tag, opts.SignKey)
+ 		if err != nil {
+@@ -714,6 +715,7 @@
+ 
+ 		tag.PGPSignature = sig
+ 	}
++	*/
+ 
+ 	obj := r.Storer.NewEncodedObject()
+ 	if err := tag.Encode(obj); err != nil {
+@@ -723,7 +725,8 @@
+ 	return r.Storer.SetEncodedObject(obj)
+ }
+ 
+-func (r *Repository) buildTagSignature(tag *object.Tag, signKey *openpgp.Entity) (string, error) {
++func (r *Repository) buildTagSignature(tag *object.Tag, signKey *int) (string, error) {
++	/*
+ 	encoded := &plumbing.MemoryObject{}
+ 	if err := tag.Encode(encoded); err != nil {
+ 		return "", err
+@@ -740,6 +743,8 @@
+ 	}
+ 
+ 	return b.String(), nil
++	*/
++	return "", nil
+ }
+ 
+ // Tag returns a tag from the repository.
+diff a/vendor/github.com/go-git/go-git/v5/worktree_commit.go b/vendor/github.com/go-git/go-git/v5/worktree_commit.go
+--- a/vendor/github.com/go-git/go-git/v5/worktree_commit.go	2022-10-30 20:00:00.000000000 -0400
++++ b/vendor/github.com/go-git/go-git/v5/worktree_commit.go	2022-12-20 13:47:27.671919357 -0500
+@@ -1,7 +1,7 @@
+ package git
+ 
+ import (
+-	"bytes"
++	//	"bytes"
+ 	"path"
+ 	"sort"
+ 	"strings"
+@@ -12,7 +12,7 @@
+ 	"github.com/go-git/go-git/v5/plumbing/object"
+ 	"github.com/go-git/go-git/v5/storage"
+ 
+-	"github.com/ProtonMail/go-crypto/openpgp"
++	//	"github.com/ProtonMail/go-crypto/openpgp"
+ 	"github.com/go-git/go-billy/v5"
+ )
+ 
+@@ -101,6 +101,7 @@
+ 		ParentHashes: opts.Parents,
+ 	}
+ 
++	/*
+ 	if opts.SignKey != nil {
+ 		sig, err := w.buildCommitSignature(commit, opts.SignKey)
+ 		if err != nil {
+@@ -108,6 +109,7 @@
+ 		}
+ 		commit.PGPSignature = sig
+ 	}
++	*/
+ 
+ 	obj := w.r.Storer.NewEncodedObject()
+ 	if err := commit.Encode(obj); err != nil {
+@@ -116,7 +118,8 @@
+ 	return w.r.Storer.SetEncodedObject(obj)
+ }
+ 
+-func (w *Worktree) buildCommitSignature(commit *object.Commit, signKey *openpgp.Entity) (string, error) {
++func (w *Worktree) buildCommitSignature(commit *object.Commit, signKey *int) (string, error) {
++	/*
+ 	encoded := &plumbing.MemoryObject{}
+ 	if err := commit.Encode(encoded); err != nil {
+ 		return "", err
+@@ -130,6 +133,8 @@
+ 		return "", err
+ 	}
+ 	return b.String(), nil
++	*/
++	return "", nil
+ }
+ 
+ // buildTreeHelper converts a given index.Index file into multiple git objects
