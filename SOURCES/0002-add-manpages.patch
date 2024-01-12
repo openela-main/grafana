@@ -1,10 +1,16 @@
+From c065b6608a65967bde152557566e0410238714a1 Mon Sep 17 00:00:00 2001
+From: Andreas Gerstmayr <agerstmayr@redhat.com>
+Date: Wed, 22 Jun 2022 17:01:09 +0200
+Subject: [PATCH] add manpages
+
+
 diff --git a/docs/man/man1/grafana-cli.1 b/docs/man/man1/grafana-cli.1
 new file mode 100644
-index 0000000000..7ac2af882c
+index 0000000000..39c0d5cee0
 --- /dev/null
 +++ b/docs/man/man1/grafana-cli.1
-@@ -0,0 +1,60 @@
-+.TH GRAFANA "1" "April 2022" "Grafana cli version 7.5.15" "User Commands"
+@@ -0,0 +1,63 @@
++.TH GRAFANA "1" "September 2022" "Grafana cli version 9.0.9" "User Commands"
 +.SH NAME
 +grafana-cli \- command line administration for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -22,6 +28,9 @@ index 0000000000..7ac2af882c
 +admin
 +Grafana admin commands
 +.TP
++cue
++Cue validation commands
++.TP
 +help, h
 +Shows a list of commands or help for one command
 +.SS "GLOBAL OPTIONS:"
@@ -36,10 +45,10 @@ index 0000000000..7ac2af882c
 +Full url to the plugin zip file instead of downloading the plugin from grafana.com/api [$GF_PLUGIN_URL]
 +.TP
 +\fB\-\-insecure\fR
-+Skip TLS verification (insecure)
++Skip TLS verification (insecure) (default: false)
 +.TP
-+\fB\-\-debug\fR, \fB\-d\fR
-+enable debug logging
++\fB\-\-debug\fR
++Enable debug logging (default: false)
 +.TP
 +\fB\-\-configOverrides\fR value
 +Configuration options to override defaults as a string. e.g. cfg:default.paths.log=/dev/null
@@ -66,11 +75,11 @@ index 0000000000..7ac2af882c
 +.BR http://docs.grafana.org/ .
 diff --git a/docs/man/man1/grafana-server.1 b/docs/man/man1/grafana-server.1
 new file mode 100644
-index 0000000000..c616268b31
+index 0000000000..683a2369cc
 --- /dev/null
 +++ b/docs/man/man1/grafana-server.1
-@@ -0,0 +1,72 @@
-+.TH VERSION "1" "April 2022" "Version 7.5.15" "User Commands"
+@@ -0,0 +1,80 @@
++.TH VERSION "1" "September 2022" "Version 9.0.9" "User Commands"
 +.SH NAME
 +grafana-server \- back-end server for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -94,7 +103,7 @@ index 0000000000..c616268b31
 +.P
 +.SH OPTIONS
 +The
-+.B gafana-server
++.B grafana-server
 +configuration is specified in
 +.BR /etc/grafana/grafana.ini
 +and is well documented with comments.
@@ -122,6 +131,10 @@ index 0000000000..c616268b31
 +.IP
 +Turn on pprof profiling
 +.HP
++\fB\-profile\-addr\fR string
++.IP
++Define custom address for profiling (default "localhost")
++.HP
 +\fB\-profile\-port\fR uint
 +.IP
 +Define custom port for profiling (default 6060)
@@ -137,6 +150,10 @@ index 0000000000..c616268b31
 +\fB\-v\fR
 +.IP
 +prints current version and exits
++.TP
++\fB\-vv\fR
++.IP
++prints current version, all dependencies and exits
 +.SH "SEE ALSO"
 +The full documentation for
 +.B Grafana

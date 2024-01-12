@@ -1,5 +1,8 @@
 #!/bin/bash -eu
 
+# Webpack needs more than the default 4GB RAM
+export NODE_OPTIONS="${NODE_OPTIONS:-} --max_old_space_size=6144"
+
 # Build the frontend
 yarn run build
 

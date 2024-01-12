@@ -5,7 +5,7 @@
 import os
 import sys
 import json
-import re
+import yaml
 from packaging import version
 
 
@@ -26,14 +26,14 @@ def read_declared_pkgs(package_json_path):
 
 def read_installed_pkgs(yarn_lock_path):
     with open(yarn_lock_path) as f:
-        lockfile = f.read()
-        return re.findall(
-            r'^"?'  # can start with a "
-            r"(.+?)@.+(?:,.*)?:\n"  # characters up to @
-            r'  version "(.+)"',  # and the version
-            lockfile,
-            re.MULTILINE,
-        )
+        lockfile = yaml.safe_load(f)
+        for pkg_decl, meta in lockfile.items():
+            for pkg in pkg_decl.split(", "):
+                if ":" not in pkg:
+                    continue
+                pkg_name = pkg[: pkg.index("@", 1)]
+                pkg_version = meta["version"]
+                yield (pkg_name, pkg_version)
 
 
 def list_provides(declared_pkgs, installed_pkgs):
@@ -61,10 +61,10 @@ if __name__ == "__main__":
         sys.exit(1)
 
     package_dir = sys.argv[1]
-    declared_pkgs = []
+    declared_pkgs = set()
     for package_json_path in scan_package_json(package_dir):
-        declared_pkgs.extend(read_declared_pkgs(package_json_path))
-    installed_pkgs = read_installed_pkgs(f"{package_dir}/yarn.lock")
+        declared_pkgs.update(read_declared_pkgs(package_json_path))
+    installed_pkgs = list(read_installed_pkgs(f"{package_dir}/yarn.lock"))
     provides = list_provides(declared_pkgs, installed_pkgs)
     for provide in sorted(provides):
         print(provide)

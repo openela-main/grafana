@@ -1,6 +1,12 @@
+use pbkdf2 from OpenSSL if FIPS mode is enabled
+
+This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
+if FIPS mode is enabled.
+DEFINEFUNC is from /usr/lib/golang/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
+
 diff --git a/vendor/golang.org/x/crypto/internal/boring/boring.go b/vendor/golang.org/x/crypto/internal/boring/boring.go
 new file mode 100644
-index 0000000..a9c550e
+index 0000000000..5a06918832
 --- /dev/null
 +++ b/vendor/golang.org/x/crypto/internal/boring/boring.go
 @@ -0,0 +1,74 @@
@@ -80,7 +86,7 @@ index 0000000..a9c550e
 +}
 diff --git a/vendor/golang.org/x/crypto/internal/boring/notboring.go b/vendor/golang.org/x/crypto/internal/boring/notboring.go
 new file mode 100644
-index 0000000..e244fb5
+index 0000000000..e244fb5663
 --- /dev/null
 +++ b/vendor/golang.org/x/crypto/internal/boring/notboring.go
 @@ -0,0 +1,16 @@
@@ -102,7 +108,7 @@ index 0000000..e244fb5
 +}
 diff --git a/vendor/golang.org/x/crypto/internal/boring/openssl_pbkdf2.h b/vendor/golang.org/x/crypto/internal/boring/openssl_pbkdf2.h
 new file mode 100644
-index 0000000..6dfdf10
+index 0000000000..6dfdf10424
 --- /dev/null
 +++ b/vendor/golang.org/x/crypto/internal/boring/openssl_pbkdf2.h
 @@ -0,0 +1,5 @@
@@ -112,7 +118,7 @@ index 0000000..6dfdf10
 +    (const char *pass, int passlen, const unsigned char *salt, int saltlen, int iter, EVP_MD *digest, int keylen, unsigned char *out),
 +    (pass, passlen, salt, saltlen, iter, digest, keylen, out))
 diff --git a/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go b/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go
-index 593f653..799a611 100644
+index 593f653008..799a611f94 100644
 --- a/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go
 +++ b/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go
 @@ -19,8 +19,11 @@ pbkdf2.Key.
