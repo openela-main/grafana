@@ -23,7 +23,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          7%{?dist}
+Release:          8%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -921,6 +921,10 @@ export GOEXPERIMENT=boringcrypto
 
 
 %changelog
+* Thu Mar 21 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-8
+- Rebuild with latest version of golang
+- resolve RHEL-24313
+
 * Thu Oct 19 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-7
 - bump release number for rebuild with fixed gating.yaml file
 
