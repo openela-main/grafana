@@ -33,7 +33,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          7%{?dist}
+Release:          8%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -933,6 +933,10 @@ export GOEXPERIMENT=boringcrypto
 
 
 %changelog
+* Wed Mar 27 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-8
+- resolve RHEL-30543
+- fix CVE-2024-1394 golang-fips/openssl: Memory leaks in code
+
 * Wed Oct 18 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-7
 - resolve RHEL-12649
 - resolve CVE-2023-39325 CVE-2023-44487 rapid stream resets can cause excessive work
