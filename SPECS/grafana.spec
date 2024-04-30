@@ -21,9 +21,11 @@ end}
 %global gomodulesmode GO111MODULE=auto
 %global gotestflags   %{gotestflags} -tags=integration
 
+%global selinux_variants mls targeted
+
 Name:             grafana
 Version:          9.2.10
-Release:          8%{?dist}
+Release:          15%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -58,6 +60,11 @@ Source6:          list_bundled_nodejs_packages.py
 # Source7 contains the script to create the vendor and webpack bundles in a container
 Source7:          create_bundles_in_container.sh
 
+# Source8 - Source10  contain the grafana-selinux policy
+Source8:          grafana.te
+Source9:          grafana.fc
+Source10:         grafana.if
+
 # Patches affecting the source tarball
 Patch1:           0001-update-grafana-cli-script-with-distro-specific-paths.patch
 Patch2:           0002-add-manpages.patch
@@ -70,6 +77,7 @@ Patch8:           0008-graphite-functions-xss.patch
 Patch9:           0009-redact-weak-ciphers.patch
 Patch10:          0010-skip-tests.patch
 Patch11:          0011-remove-email-lookup.patch
+Patch12:          0012-coredump-selinux-error.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -106,6 +114,14 @@ Requires(pre):    shadow-utils
 # Grafana queries the mime database (through mime.TypeByExtension, in a unit test and at runtime)
 BuildRequires:    shared-mime-info
 Requires:         shared-mime-info
+
+%if 0%{?fedora} >= 35 || 0%{?rhel} >= 8
+# This ensures that the grafana-selinux package and all its dependencies are
+# not pulled into containers and other systems that do not use SELinux
+Requires: (grafana-selinux = %{version}-%{release} if selinux-policy-targeted)
+%else
+Requires: grafana-selinux = %{version}-%{release}
+%endif
 
 %if 0%{?fedora} || 0%{?rhel} > 7
 Recommends: grafana-pcp
@@ -708,6 +724,20 @@ Provides: bundled(npm(yaml)) = 1.10.2
 Grafana is an open source, feature rich metrics dashboard and graph editor for
 Graphite, InfluxDB & OpenTSDB.
 
+# SELinux package
+%package selinux
+Summary:        SELinux policy module supporting grafana
+BuildRequires: checkpolicy, selinux-policy-devel, selinux-policy-targeted
+%if "%{_selinux_policy_version}" != ""
+Requires:       selinux-policy >= %{_selinux_policy_version}
+%endif
+Requires:       %{name} = %{version}-%{release}
+Requires:	selinux-policy-targeted
+Requires(post):   /usr/sbin/semodule, /usr/sbin/semanage, /sbin/restorecon, /sbin/fixfiles, grafana
+Requires(postun): /usr/sbin/semodule, /usr/sbin/semanage, /sbin/restorecon, /sbin/fixfiles, /sbin/service, grafana
+
+%description selinux
+SELinux policy module supporting grafana
 
 %prep
 %setup -q -T -D -b 0
@@ -718,6 +748,10 @@ Graphite, InfluxDB & OpenTSDB.
 rm -r plugins-bundled
 %setup -q -T -D -b 2
 %endif
+
+# SELinux policy
+mkdir SELinux
+cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 
 %patch -P 1 -p1
 %patch -P 2 -p1
@@ -730,6 +764,7 @@ rm -r plugins-bundled
 %patch -P 9 -p1
 %patch -P 10 -p1
 %patch -P 11 -p1
+%patch -P 12 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -757,6 +792,16 @@ export LDFLAGS="-X main.version=%{version} -X main.buildstamp=${SOURCE_DATE_EPOC
 for cmd in grafana-cli grafana-server; do
     %gobuild -o %{_builddir}/bin/${cmd} ./pkg/cmd/${cmd}
 done
+
+# SELinux policy
+cd SELinux
+for selinuxvariant in %{selinux_variants}
+do
+  make NAME=${selinuxvariant} -f /usr/share/selinux/devel/Makefile
+  mv grafana.pp grafana.pp.${selinuxvariant}
+  make NAME=${selinuxvariant} -f /usr/share/selinux/devel/Makefile clean
+done
+cd -
 
 
 %install
@@ -817,6 +862,16 @@ echo "d %{_rundir}/%{name} 0755 %{GRAFANA_USER} %{GRAFANA_GROUP} -" \
 # systemd-sysusers configuration
 install -p -m 644 -D %{SOURCE3} %{buildroot}%{_sysusersdir}/%{name}.conf
 
+# SELinux policy
+cd SELinux
+for selinuxvariant in %{selinux_variants}
+do
+  install -d %{buildroot}%{_datadir}/selinux/${selinuxvariant}
+  install -p -m 644 grafana.pp.${selinuxvariant} \
+    %{buildroot}%{_datadir}/selinux/${selinuxvariant}/grafana.pp
+done
+cd -
+
 %pre
 %sysusers_create_compat %{SOURCE3}
 
@@ -866,8 +921,8 @@ export TZ=GMT
 # required since RHEL 8.8 to fix the following error:
 # "imports crypto/boring: build constraints exclude all Go files in /usr/lib/golang/src/crypto/boring"
 # can be removed in a future Go release
-export GOEXPERIMENT=boringcrypto
-#%gotest ./pkg/...
+#export GOEXPERIMENT=boringcrypto
+#% gotest ./pkg/...
 
 #%if %{enable_fips_mode}
 #OPENSSL_FORCE_FIPS_MODE=1 GOLANG_FIPS=1 go test -v ./pkg/util -run TestEncryption
@@ -919,19 +974,67 @@ export GOEXPERIMENT=boringcrypto
 %doc CHANGELOG.md CODE_OF_CONDUCT.md CONTRIBUTING.md GOVERNANCE.md HALL_OF_FAME.md ISSUE_TRIAGE.md MAINTAINERS.md
 %doc PLUGIN_DEV.md README.md ROADMAP.md SECURITY.md SUPPORT.md UPGRADING_DEPENDENCIES.md WORKFLOW.md
 
+# SELinux policy
+%post selinux
+for selinuxvariant in %{selinux_variants}
+do
+  /usr/sbin/semodule -s ${selinuxvariant} -i \
+    %{_datadir}/selinux/${selinuxvariant}/grafana.pp &> /dev/null || :
+done
+/sbin/restorecon -RvF /usr/sbin/grafana-* &> /dev/null || :
+/sbin/restorecon -RvF /etc/grafana &> /dev/null || :
+/sbin/restorecon -RvF /var/log/grafana &> /dev/null || :
+/sbin/restorecon -RvF /var/lib/grafana &> /dev/null || :
+/sbin/restorecon -RvF /usr/libexec/grafana-pcp &> /dev/null || :
+/usr/sbin/semanage port -a -t grafana_port_t -p tcp 3000 &> /dev/null || :
+
+%postun selinux
+if [ $1 -eq 0 ] ; then
+/usr/sbin/semanage port -d -p tcp 3000 &> /dev/null || :
+  for selinuxvariant in %{selinux_variants}
+  do
+    /usr/sbin/semodule -s ${selinuxvariant} -r grafana &> /dev/null || :
+  done
+  /sbin/restorecon -RvF /usr/sbin/grafana-* &> /dev/null || :
+  /sbin/restorecon -RvF /etc/grafana &> /dev/null || :
+  /sbin/restorecon -RvF /var/log/grafana &> /dev/null || :
+  /sbin/restorecon -RvF /var/lib/grafana &> /dev/null || :
+  /sbin/restorecon -RvF /usr/libexec/grafana-pcp &> /dev/null || :
+fi
+
+%files selinux
+%defattr(-,root,root,0755)
+%doc SELinux/*
+%{_datadir}/selinux/*/grafana.pp
 
 %changelog
-* Thu Mar 21 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-8
-- Rebuild with latest version of golang
-- resolve RHEL-24313
+* Wed Jan 31 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-15
+- Resolves RHEL-23468
+- Allows for gid to be 0
+- Allows for postgreSQL datasource in selinux policy
 
-* Thu Oct 19 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-7
-- bump release number for rebuild with fixed gating.yaml file
+* Tue Dec 19 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-14
+- Fixes postgresql AVC denial
+- Related RHEL-7505
 
-* Wed Oct 18 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-6
-- resolve RHEL-12665
-- resolve CVE-2023-39325 CVE-2023-44487 rapid stream resets can cause excessive work
-- testing is turned off due to test failures caused by testing date mismatch
+* Thu Dec 14 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-13
+- Resolves RHEL-19296
+- Fixes coredump issue introduced by selinux
+- Patches out call to panic when trying to walk "/" directory
+
+* Thu Nov 30 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-12
+- Resolves RHEL-7505
+- Fixes additional selinux denials found when testing on certain architectures
+
+* Tue Nov 21 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-11
+- Resolves RHEL-7505
+- Fixes selinux denials found when testing on certain architectures
+
+* Wed Nov 15 2023 Sam Feifer <sfeifer@redhat.com> 9.2.10-10
+- Resolves RHEL-7505
+- Adds a selinux policy for grafana
+- Resolves RHEL-12666
+- fix CVE-2023-39325 CVE-2023-44487 rapid stream resets can cause excessive work
 
 * Thu Jul 20 2023 Stan Cox <scox@redhat.com> 9.2.10-5
 - resolve CVE-2023-3128 grafana: account takeover possible when using Azure AD OAuth
