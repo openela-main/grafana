@@ -1,0 +1,21 @@
+From 9c1236ba6e7d4c6506c62adeb830d9e56db7f425 Mon Sep 17 00:00:00 2001
+From: Sam Feifer <sfeifer@redhat.com>
+Date: Thu, 28 Mar 2024 13:24:35 -0400
+Subject: [PATCH] snapshot delete check org
+
+
+diff --git a/pkg/api/dashboard_snapshot.go b/pkg/api/dashboard_snapshot.go
+index 47ae50544a..0007e89ccb 100644
+--- a/pkg/api/dashboard_snapshot.go
++++ b/pkg/api/dashboard_snapshot.go
+@@ -328,6 +328,10 @@ func (hs *HTTPServer) DeleteDashboardSnapshot(c *models.ReqContext) response.Res
+ 		return response.Error(http.StatusNotFound, "Failed to get dashboard snapshot", nil)
+ 	}
+ 
++	if query.Result.OrgId != c.OrgID {
++		return response.Error(http.StatusUnauthorized, "OrgID mismatch", nil)
++	}
++
+ 	if query.Result.External {
+ 		err := deleteExternalDashboardSnapshot(query.Result.ExternalDeleteUrl)
+ 		if err != nil {
