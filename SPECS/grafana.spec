@@ -35,7 +35,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          15%{?dist}
+Release:          16%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -87,6 +87,7 @@ Patch8:           0008-graphite-functions-xss.patch
 Patch10:          0010-skip-tests.patch
 Patch11:          0011-remove-email-lookup.patch
 Patch12:          0012-coredump-selinux-error.patch
+Patch13:          0013-snapshot-delete-check-org.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -773,6 +774,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 10 -p1
 %patch -P 11 -p1
 %patch -P 12 -p1
+%patch -P 13 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1019,6 +1021,11 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Fri Apr 5 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-16
+- Check OrdID is correct before deleting snapshot
+- fix CVE-2024-1313
+- fix CVE-2024-1394
+
 * Wed Jan 31 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-15
 - Resolves RHEL-23466
 - Resolves RHEL-21027
