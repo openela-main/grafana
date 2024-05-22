@@ -52,7 +52,7 @@ index dafa075a2c..eda358c425 100755
 +                         cfg:default.paths.logs=${LOG_DIR} \
 +                         cfg:default.paths.plugins=${PLUGINS_DIR}")
 +
-+if [ "$(id -u)" -eq 0 ]; then
++if [ "$(id -u)" -eq 0 -o "$(id -g)" -eq 0 ]; then
 +  cd "${GRAFANA_HOME}"
 +  exec runuser -u "${GRAFANA_USER}" -- "$EXECUTABLE" "${OPTS[@]}" "$@"
 +elif [ "$(id -u -n)" = "${GRAFANA_USER}" ]; then
