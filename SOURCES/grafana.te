@@ -82,6 +82,9 @@ can_exec(grafana_t, grafana_pcp_exec_t)
 corenet_tcp_connect_all_ephemeral_ports(grafana_t)
 grafana_exec(grafana_t)
 
+# Allow grafana to connect to mssql's default tcp port of 1433 
+corenet_tcp_connect_mssql_port(grafana_t)
+
 ########################################
 #
 # grafana local policy

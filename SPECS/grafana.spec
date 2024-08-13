@@ -35,7 +35,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          16%{?dist}
+Release:          17%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -1021,6 +1021,10 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Wed Jun 26 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-17
+- Allow for mssql datasource in selinux policy
+- Resolves RHEL-43435
+
 * Fri Apr 5 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-16
 - Check OrdID is correct before deleting snapshot
 - fix CVE-2024-1313
