@@ -25,7 +25,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          16%{?dist}
+Release:          17%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -1010,6 +1010,9 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Tue Sep 17 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-17
+- Resolves RHEL-57925: CVE-2024-34156
+
 * Tue Apr 16 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-16
 - Check OrdID is correct before deleting snapshot
 - fix CVE-2024-1313
