@@ -2,7 +2,7 @@ use pbkdf2 from OpenSSL if FIPS mode is enabled
 
 This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
 if FIPS mode is enabled.
-DEFINEFUNC is from /usr/lib/golang/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
+DEFINEFUNC is from /usr/lib/golang/src/vendor/github.com/golang-fips/openssl/openssl/goopenssl.h
 
 diff --git a/vendor/golang.org/x/crypto/internal/boring/boring.go b/vendor/golang.org/x/crypto/internal/boring/boring.go
 new file mode 100644
@@ -112,7 +112,7 @@ index 0000000000..6dfdf10424
 --- /dev/null
 +++ b/vendor/golang.org/x/crypto/internal/boring/openssl_pbkdf2.h
 @@ -0,0 +1,5 @@
-+#include "/usr/lib/golang/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h"
++#include "/usr/lib/golang/src/vendor/github.com/golang-fips/openssl/openssl/goopenssl.h"
 +
 +DEFINEFUNC(int, PKCS5_PBKDF2_HMAC,
 +    (const char *pass, int passlen, const unsigned char *salt, int saltlen, int iter, EVP_MD *digest, int keylen, unsigned char *out),
