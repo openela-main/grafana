@@ -6,7 +6,7 @@
 #
 
 cat <<EOF | podman build -t grafana-build -f - .
-FROM fedora:35
+FROM fedora:36
 
 RUN dnf upgrade -y && \
     dnf install -y rpmdevtools python3-packaging python3-pyyaml make golang nodejs yarnpkg

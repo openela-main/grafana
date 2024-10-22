@@ -40,6 +40,7 @@ awk '$2 ~ /^v/ && $4 != "indirect" {print "Provides: bundled(golang(" $1 ")) = "
 
 # Vendor Node.js dependencies
 patch -p1 --fuzz=0 < ../0005-remove-unused-frontend-crypto.patch
+patch -p1 --fuzz=0 < ../0014-resolve-dompurify-CVE.patch
 export HUSKY=0
 yarn install --frozen-lockfile
 
