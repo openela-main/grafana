@@ -25,7 +25,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          17%{?dist}
+Release:          19%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -36,13 +36,13 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 # Source1 contains the bundled Go and Node.js dependencies
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source1:          grafana-vendor-%{version}-2.tar.xz
+Source1:          grafana-vendor-%{version}-19.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source2:          grafana-webpack-%{version}-2.tar.gz
+Source2:          grafana-webpack-%{version}-19.tar.gz
 %endif
 
 # Source3 contains the systemd-sysusers configuration
@@ -79,6 +79,7 @@ Patch10:          0010-skip-tests.patch
 Patch11:          0011-remove-email-lookup.patch
 Patch12:          0012-coredump-selinux-error.patch
 Patch13:          0013-snapshot-delete-check-org.patch
+Patch14:          0014-resolve-dompurify-CVE.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -522,7 +523,7 @@ Provides: bundled(npm(date-fns)) = 2.25.0
 Provides: bundled(npm(debounce-promise)) = 3.1.2
 Provides: bundled(npm(deep-freeze)) = 0.0.1
 Provides: bundled(npm(devtools-protocol)) = 0.0.927104
-Provides: bundled(npm(dompurify)) = 2.3.8
+Provides: bundled(npm(dompurify)) = 2.5.7
 Provides: bundled(npm(emotion)) = 10.0.27
 Provides: bundled(npm(enzyme)) = 3.11.0
 Provides: bundled(npm(enzyme-to-json)) = 3.6.2
@@ -767,6 +768,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 11 -p1
 %patch -P 12 -p1
 %patch -P 13 -p1
+%patch -P 14 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1010,6 +1012,12 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Thu Oct 17 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-19
+- Resolves RHEL-62309: CVE-2024-47875
+
+* Thu Oct 10 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-18
+- Resolves RHEL-61049: CVE-2024-9355
+
 * Tue Sep 17 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-17
 - Resolves RHEL-57925: CVE-2024-34156
 
