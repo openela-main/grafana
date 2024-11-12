@@ -21,6 +21,7 @@ pushd "${SOURCE_DIR}"
 
 # Vendor Go dependencies
 patch -p1 --fuzz=0 < ../0004-remove-unused-backend-dependencies.patch
+patch -p1 --fuzz=0 < ../0011-fix-dompurify-CVE.patch
 go mod vendor
 
 # Generate Go files
