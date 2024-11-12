@@ -2,7 +2,7 @@ use pbkdf2 from OpenSSL if FIPS mode is enabled
 
 This patch modifies the x/crypto/pbkdf2 function to use OpenSSL
 if FIPS mode is enabled.
-DEFINEFUNC is from /usr/lib/golang/src/vendor/github.com/golang-fips/openssl/openssl/goopenssl.h
+DEFINEFUNC is from /usr/lib/golang/src/vendor/github.com/golang-fips/openssl-fips/openssl/goopenssl.h
 
 diff --git a/vendor/golang.org/x/crypto/internal/boring/boring.go b/vendor/golang.org/x/crypto/internal/boring/boring.go
 new file mode 100644
@@ -23,7 +23,7 @@ index 0000000000..5a06918832
 +
 +package boring
 +
-+// #include "openssl_pbkdf2.h"
++// #include "/usr/lib/golang/src/vendor/github.com/golang-fips/openssl/v2/goopenssl.h"
 +// #cgo LDFLAGS: -ldl
 +import "C"
 +import (
@@ -39,14 +39,14 @@ index 0000000000..5a06918832
 +	emptySha256 = sha256.Sum256([]byte{})
 +)
 +
-+func hashToMD(h hash.Hash) *C.GO_EVP_MD {
++func hashToMD(h hash.Hash) C.GO_EVP_MD_PTR {
 +	emptyHash := h.Sum([]byte{})
 +
 +	switch {
 +	case bytes.Equal(emptyHash, emptySha1[:]):
-+		return C._goboringcrypto_EVP_sha1()
++		return C.go_openssl_EVP_sha1()
 +	case bytes.Equal(emptyHash, emptySha256[:]):
-+		return C._goboringcrypto_EVP_sha256()
++		return C.go_openssl_EVP_sha256()
 +	}
 +	return nil
 +}
@@ -78,7 +78,7 @@ index 0000000000..5a06918832
 +	}
 +
 +	out := make([]byte, keyLen)
-+	ok := C._goboringcrypto_PKCS5_PBKDF2_HMAC(charptr(password), C.int(len(password)), ucharptr(salt), C.int(len(salt)), C.int(iter), md, C.int(keyLen), ucharptr(out))
++	ok := C.go_openssl_PKCS5_PBKDF2_HMAC(charptr(password), C.int(len(password)), ucharptr(salt), C.int(len(salt)), C.int(iter), md, C.int(keyLen), ucharptr(out))
 +	if ok != 1 {
 +		panic("boringcrypto: PKCS5_PBKDF2_HMAC failed")
 +	}
@@ -106,17 +106,6 @@ index 0000000000..e244fb5663
 +func Pbkdf2Key(password, salt []byte, iter, keyLen int, h func() hash.Hash) []byte {
 +	panic("boringcrypto: not available")
 +}
-diff --git a/vendor/golang.org/x/crypto/internal/boring/openssl_pbkdf2.h b/vendor/golang.org/x/crypto/internal/boring/openssl_pbkdf2.h
-new file mode 100644
-index 0000000000..6dfdf10424
---- /dev/null
-+++ b/vendor/golang.org/x/crypto/internal/boring/openssl_pbkdf2.h
-@@ -0,0 +1,5 @@
-+#include "/usr/lib/golang/src/vendor/github.com/golang-fips/openssl/openssl/goopenssl.h"
-+
-+DEFINEFUNC(int, PKCS5_PBKDF2_HMAC,
-+    (const char *pass, int passlen, const unsigned char *salt, int saltlen, int iter, EVP_MD *digest, int keylen, unsigned char *out),
-+    (pass, passlen, salt, saltlen, iter, digest, keylen, out))
 diff --git a/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go b/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go
 index 593f653008..799a611f94 100644
 --- a/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go

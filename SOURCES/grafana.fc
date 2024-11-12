@@ -5,6 +5,7 @@
 
 /usr/sbin/grafana-cli					--	gen_context(system_u:object_r:grafana_exec_t,s0)
 /usr/sbin/grafana-server				--	gen_context(system_u:object_r:grafana_exec_t,s0)
+/usr/sbin/grafana				        --	gen_context(system_u:object_r:grafana_exec_t,s0)
 
 /var/lib/grafana(/.*)?						gen_context(system_u:object_r:grafana_var_lib_t,s0)
 #/var/lib/grafana/grafana.db				--	gen_context(system_u:object_r:grafana_db_t,s0)

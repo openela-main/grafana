@@ -123,6 +123,14 @@ optional_policy(`
 	allow grafana_t postgresql_var_run_t:sock_file write;
 ')
 
+optional_policy(`
+	require {
+		type proc_net_t;
+		class lnk_file { read };
+	}
+	allow grafana_t proc_net_t:lnk_file read;
+')
+
 manage_dirs_pattern(grafana_t, grafana_conf_t, grafana_conf_t)
 manage_files_pattern(grafana_t, grafana_conf_t, grafana_conf_t)
 

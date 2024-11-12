@@ -30,9 +30,28 @@ make gen-go
 rm -r vendor/golang.org/x/crypto/bcrypt
 rm -r vendor/golang.org/x/crypto/blowfish
 rm -r vendor/golang.org/x/crypto/cast5
-rm -r vendor/golang.org/x/crypto/openpgp/elgamal
-rm    vendor/golang.org/x/crypto/openpgp/packet/ocfb.go
-rm -r vendor/golang.org/x/crypto/pkcs12/internal/rc2
+rm -r vendor/golang.org/x/crypto/acme
+rm -r vendor/golang.org/x/crypto/argon2
+rm -r vendor/golang.org/x/crypto/blake2b
+rm -r vendor/golang.org/x/crypto/chacha20
+rm -r vendor/golang.org/x/crypto/chacha20poly1305
+rm -r vendor/golang.org/x/crypto/cryptobyte
+rm -r vendor/golang.org/x/crypto/curve25519
+rm -r vendor/golang.org/x/crypto/ed25519
+rm -r vendor/golang.org/x/crypto/hkdf
+rm -r vendor/golang.org/x/crypto/internal
+rm -r vendor/golang.org/x/crypto/md4
+rm -r vendor/golang.org/x/crypto/nacl
+rm -r vendor/golang.org/x/crypto/openpgp
+rm -r vendor/golang.org/x/crypto/pkcs12
+rm -r vendor/golang.org/x/crypto/poly1305
+rm -r vendor/golang.org/x/crypto/salsa20
+rm -r vendor/golang.org/x/crypto/scrypt
+rm -r vendor/golang.org/x/crypto/sha3
+
+# Remove unused code under apsl licenses
+rm -r vendor/modernc.org/libc
+rm -r vendor/modernc.org/sqlite
 
 # List bundled dependencies
 awk '$2 ~ /^v/ && $4 != "indirect" {print "Provides: bundled(golang(" $1 ")) = " substr($2, 2)}' go.mod | \
@@ -40,7 +59,6 @@ awk '$2 ~ /^v/ && $4 != "indirect" {print "Provides: bundled(golang(" $1 ")) = "
 
 # Vendor Node.js dependencies
 patch -p1 --fuzz=0 < ../0005-remove-unused-frontend-crypto.patch
-patch -p1 --fuzz=0 < ../0014-resolve-dompurify-CVE.patch
 export HUSKY=0
 yarn install --frozen-lockfile
 

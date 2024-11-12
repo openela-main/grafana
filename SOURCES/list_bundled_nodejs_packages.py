@@ -25,6 +25,7 @@ def read_declared_pkgs(package_json_path):
 
 
 def read_installed_pkgs(yarn_lock_path):
+    bad_version_strings = ['0.0.0-use.local', '7.0.1-patch.1']
     with open(yarn_lock_path) as f:
         lockfile = yaml.safe_load(f)
         for pkg_decl, meta in lockfile.items():
@@ -33,7 +34,8 @@ def read_installed_pkgs(yarn_lock_path):
                     continue
                 pkg_name = pkg[: pkg.index("@", 1)]
                 pkg_version = meta["version"]
-                yield (pkg_name, pkg_version)
+                if pkg_version not in bad_version_strings:
+                    yield (pkg_name, pkg_version)
 
 
 def list_provides(declared_pkgs, installed_pkgs):
