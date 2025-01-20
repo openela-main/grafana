@@ -35,7 +35,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          20%{?dist}
+Release:          21%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -46,20 +46,23 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 # Source1 contains the bundled Go and Node.js dependencies
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source1:          grafana-vendor-%{version}-20.tar.xz
+Source1:          grafana-vendor-%{version}-21.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source2:          grafana-webpack-%{version}-20.tar.gz
+Source2:          grafana-webpack-%{version}-21.tar.gz
 %endif
 
 # Source3 contains the systemd-sysusers configuration
 Source3:          grafana.sysusers
 
-# Source4 contains the script to create the vendor and webpack bundles
-Source4:          create_bundles.sh
+# Source4 contains the script to create the vendor bundle
+Source4:          create_vendor_bundle.sh
+
+# Source11 contains the script to create the webpack bundle
+Source11:         create_webpack_bundle.sh
 
 # Source5 contains the script to build the frontend
 Source5:          build_frontend.sh
@@ -67,8 +70,11 @@ Source5:          build_frontend.sh
 # Source6 contains the script to generate the list of bundled nodejs packages
 Source6:          list_bundled_nodejs_packages.py
 
-# Source7 contains the script to create the vendor and webpack bundles in a container
-Source7:          create_bundles_in_container.sh
+# Source7 contains the script to create the vendor bundle in a container
+Source7:          create_vendor_bundle_in_container.sh
+
+# Source12 contains the script to create the webpack bundle in a container
+Source12:          create_webpack_bundle_in_container.sh
 
 # Source8 - Source10  contain the grafana-selinux policy
 Source8:          grafana.te
@@ -89,6 +95,8 @@ Patch11:          0011-remove-email-lookup.patch
 Patch12:          0012-coredump-selinux-error.patch
 Patch13:          0013-snapshot-delete-check-org.patch
 Patch14:          0014-resolve-dompurify-CVE.patch
+Patch15:          0015-update-go-git-version.patch
+Patch16:          0016-fix-macaron-version-error.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -186,7 +194,7 @@ Provides: bundled(golang(github.com/dop251/goja)) = 0.0.0-20210804101310.32956a3
 Provides: bundled(golang(github.com/fatih/color)) = 1.13.0
 Provides: bundled(golang(github.com/gchaincl/sqlhooks)) = 1.3.0
 Provides: bundled(golang(github.com/getsentry/sentry-go)) = 0.13.0
-Provides: bundled(golang(github.com/go-git/go-git/v5)) = 5.4.2
+Provides: bundled(golang(github.com/go-git/go-git/v5)) = 5.13.0
 Provides: bundled(golang(github.com/go-kit/kit)) = 0.11.0
 Provides: bundled(golang(github.com/go-openapi/strfmt)) = 0.21.3
 Provides: bundled(golang(github.com/go-redis/redis/v8)) = 8.11.4
@@ -197,9 +205,9 @@ Provides: bundled(golang(github.com/gobwas/glob)) = 0.2.3
 Provides: bundled(golang(github.com/gogo/protobuf)) = 1.3.2
 Provides: bundled(golang(github.com/golang/mock)) = 1.6.0
 Provides: bundled(golang(github.com/golang/snappy)) = 0.0.4
-Provides: bundled(golang(github.com/google/go-cmp)) = 0.5.8
+Provides: bundled(golang(github.com/google/go-cmp)) = 0.6.0
 Provides: bundled(golang(github.com/google/uuid)) = 1.3.0
-Provides: bundled(golang(github.com/google/wire)) = 0.5.0
+Provides: bundled(golang(github.com/google/wire)) = 0.6.0
 Provides: bundled(golang(github.com/gorilla/websocket)) = 1.5.0
 Provides: bundled(golang(github.com/gosimple/slug)) = 1.12.0
 Provides: bundled(golang(github.com/grafana/cuetsy)) = 0.0.4-0.20220714174355.ebd987fdab27
@@ -234,7 +242,7 @@ Provides: bundled(golang(github.com/prometheus/common)) = 0.37.0
 Provides: bundled(golang(github.com/prometheus/prometheus)) = 1.8.2-0.20211011171444.354d8d2ecfac
 Provides: bundled(golang(github.com/robfig/cron/v3)) = 3.0.1
 Provides: bundled(golang(github.com/russellhaering/goxmldsig)) = 1.1.1
-Provides: bundled(golang(github.com/stretchr/testify)) = 1.8.0
+Provides: bundled(golang(github.com/stretchr/testify)) = 1.10.0
 Provides: bundled(golang(github.com/teris-io/shortid)) = 0.0.0-20171029131806.771a37caa5cf
 Provides: bundled(golang(github.com/ua-parser/uap-go)) = 0.0.0-20211112212520.00c877edfe0f
 Provides: bundled(golang(github.com/uber/jaeger-client-go)) = 2.29.1+incompatible
@@ -249,12 +257,12 @@ Provides: bundled(golang(go.opentelemetry.io/otel)) = 1.6.3
 Provides: bundled(golang(go.opentelemetry.io/otel/exporters/jaeger)) = 1.0.0
 Provides: bundled(golang(go.opentelemetry.io/otel/sdk)) = 1.6.3
 Provides: bundled(golang(go.opentelemetry.io/otel/trace)) = 1.6.3
-Provides: bundled(golang(golang.org/x/crypto)) = 0.0.0-20220622213112.05595931fe9d
-Provides: bundled(golang(golang.org/x/exp)) = 0.0.0-20220613132600.b0d781184e0d
+Provides: bundled(golang(golang.org/x/crypto)) = 0.31.0
+Provides: bundled(golang(golang.org/x/exp)) = 0.0.0-20240719175910.8a7402abbf56
 Provides: bundled(golang(golang.org/x/oauth2)) = 0.0.0-20220608161450.d0670ef3b1eb
-Provides: bundled(golang(golang.org/x/sync)) = 0.0.0-20220722155255.886fb9371eb4
+Provides: bundled(golang(golang.org/x/sync)) = 0.10.0
 Provides: bundled(golang(golang.org/x/time)) = 0.0.0-20220609170525.579cf78fd858
-Provides: bundled(golang(golang.org/x/tools)) = 0.1.12
+Provides: bundled(golang(golang.org/x/tools)) = 0.23.0
 Provides: bundled(golang(gonum.org/v1/gonum)) = 0.11.0
 Provides: bundled(golang(google.golang.org/api)) = 0.74.0
 Provides: bundled(golang(google.golang.org/grpc)) = 1.45.0
@@ -278,7 +286,7 @@ Provides: bundled(golang(github.com/grafana/grafana-google-sdk-go)) = 0.0.0-2021
 Provides: bundled(golang(github.com/hashicorp/go-multierror)) = 1.1.1
 Provides: bundled(golang(github.com/segmentio/encoding)) = 0.3.5
 Provides: bundled(golang(go.uber.org/atomic)) = 1.9.0
-Provides: bundled(golang(golang.org/x/text)) = 0.4.0
+Provides: bundled(golang(golang.org/x/text)) = 0.21.0
 Provides: bundled(golang(google.golang.org/genproto)) = 0.0.0-20220421151946.72621c1f0bd3
 Provides: bundled(golang(cloud.google.com/go/kms)) = 1.4.0
 Provides: bundled(golang(github.com/Azure/azure-sdk-for-go/sdk/azidentity)) = 0.13.2
@@ -328,19 +336,11 @@ Provides: bundled(npm(@emotion/react)) = 11.9.0
 Provides: bundled(npm(@grafana/agent-core)) = 0.4.0
 Provides: bundled(npm(@grafana/agent-web)) = 0.4.0
 Provides: bundled(npm(@grafana/aws-sdk)) = 0.0.37
-Provides: bundled(npm(@grafana/data)) = 0.0.0-use.local
-Provides: bundled(npm(@grafana/e2e)) = 0.0.0-use.local
-Provides: bundled(npm(@grafana/e2e-selectors)) = 0.0.0-use.local
 Provides: bundled(npm(@grafana/eslint-config)) = 5.0.0
 Provides: bundled(npm(@grafana/experimental)) = 1.0.1
 Provides: bundled(npm(@grafana/google-sdk)) = 0.0.3
 Provides: bundled(npm(@grafana/lezer-logql)) = 0.1.0
-Provides: bundled(npm(@grafana/runtime)) = 0.0.0-use.local
-Provides: bundled(npm(@grafana/schema)) = 0.0.0-use.local
-Provides: bundled(npm(@grafana/toolkit)) = 0.0.0-use.local
 Provides: bundled(npm(@grafana/tsconfig)) = 1.2.0rc1
-Provides: bundled(npm(@grafana/ui)) = 0.0.0-use.local
-Provides: bundled(npm(@jaegertracing/jaeger-ui-components)) = 0.0.0-use.local
 Provides: bundled(npm(@jest/core)) = 27.5.1
 Provides: bundled(npm(@kusto/monaco-kusto)) = 5.2.0
 Provides: bundled(npm(@lezer/common)) = 1.0.0
@@ -377,7 +377,6 @@ Provides: bundled(npm(@reduxjs/toolkit)) = 1.8.5
 Provides: bundled(npm(@rollup/plugin-commonjs)) = 22.0.1
 Provides: bundled(npm(@rollup/plugin-json)) = 4.1.0
 Provides: bundled(npm(@rollup/plugin-node-resolve)) = 13.3.0
-Provides: bundled(npm(@rtsao/plugin-proposal-class-properties)) = 7.0.1-patch.1
 Provides: bundled(npm(@sentry/browser)) = 6.19.7
 Provides: bundled(npm(@sentry/types)) = 6.19.7
 Provides: bundled(npm(@sentry/utils)) = 6.19.7
@@ -494,7 +493,6 @@ Provides: bundled(npm(angular-bindonce)) = 0.3.1
 Provides: bundled(npm(angular-route)) = 1.8.3
 Provides: bundled(npm(angular-sanitize)) = 1.8.3
 Provides: bundled(npm(ansicolor)) = 1.1.100
-Provides: bundled(npm(app)) = 0.0.0-use.local
 Provides: bundled(npm(autoprefixer)) = 9.8.8
 Provides: bundled(npm(axios)) = 0.25.0
 Provides: bundled(npm(babel-jest)) = 27.5.1
@@ -703,7 +701,6 @@ Provides: bundled(npm(stylelint-config-sass-guidelines)) = 9.0.1
 Provides: bundled(npm(symbol-observable)) = 4.0.0
 Provides: bundled(npm(systemjs)) = 0.20.19
 Provides: bundled(npm(terser-webpack-plugin)) = 4.2.3
-Provides: bundled(npm(test)) = 0.0.0-use.local
 Provides: bundled(npm(testing-library-selector)) = 0.2.1
 Provides: bundled(npm(tether-drop)) = 1.5.0
 Provides: bundled(npm(tinycolor2)) = 1.4.2
@@ -716,7 +713,6 @@ Provides: bundled(npm(tween-functions)) = 1.2.0
 Provides: bundled(npm(typescript)) = 4.6.4
 Provides: bundled(npm(uplot)) = 1.6.22
 Provides: bundled(npm(uuid)) = 3.4.0
-Provides: bundled(npm(vendor)) = 0.0.0-use.local
 Provides: bundled(npm(visjs-network)) = 4.25.0
 Provides: bundled(npm(wait-on)) = 6.0.1
 Provides: bundled(npm(webpack)) = 5.72.0
@@ -777,6 +773,8 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 12 -p1
 %patch -P 13 -p1
 %patch -P 14 -p1
+%patch -P 15 -p1
+%patch -P 16 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1023,6 +1021,10 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Wed Jan 15 2025 Sam Feifer <sfeifer@redhat.com> 9.2.10-21
+- Resolves RHEL-72881: CVE-2025-21614
+- Resolves RHEL-72869: CVE-2025-21613
+
 * Thu Oct 17 2024 Sam Feifer <sfeifer@redhat.com> 9.2.10-20
 - Resolves RHEL-62307: CVE-2024-47875
 

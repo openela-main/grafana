@@ -7,7 +7,6 @@ SOURCE_DATE_EPOCH=$((CHANGELOGTIME - CHANGELOGTIME % 86400))
 SOURCE_DIR=grafana-$VERSION
 SOURCE_TAR=grafana-$VERSION.tar.gz
 VENDOR_TAR=grafana-vendor-$VERSION-$RELEASE.tar.xz
-WEBPACK_TAR=grafana-webpack-$VERSION-$RELEASE.tar.gz
 
 
 ## Download and extract source tarball
@@ -21,6 +20,7 @@ pushd "${SOURCE_DIR}"
 
 # Vendor Go dependencies
 patch -p1 --fuzz=0 < ../0004-remove-unused-backend-dependencies.patch
+patch -p1 --fuzz=0 < ../0015-update-go-git-version.patch
 go mod vendor
 
 # Generate Go files
@@ -65,22 +65,3 @@ XZ_OPT=-9 tar \
     "${SOURCE_DIR}/.pnp.cjs" \
     "${SOURCE_DIR}/.yarn/cache" \
     "${SOURCE_DIR}/.yarn/unplugged"
-
-
-## Create webpack
-pushd "${SOURCE_DIR}"
-../build_frontend.sh
-popd
-
-# Create tarball
-tar \
-    --sort=name \
-    --mtime="@${SOURCE_DATE_EPOCH}" --clamp-mtime \
-    --owner=0 --group=0 --numeric-owner \
-    -czf "${WEBPACK_TAR}" \
-    "${SOURCE_DIR}/plugins-bundled" \
-    "${SOURCE_DIR}/public/build" \
-    "${SOURCE_DIR}/public/img" \
-    "${SOURCE_DIR}/public/lib" \
-    "${SOURCE_DIR}/public/locales" \
-    "${SOURCE_DIR}/public/views"

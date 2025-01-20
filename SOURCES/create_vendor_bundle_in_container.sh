@@ -6,7 +6,7 @@
 #
 
 cat <<EOF | podman build -t grafana-build -f - .
-FROM fedora:36
+FROM fedora:41
 
 RUN dnf upgrade -y && \
     dnf install -y rpmdevtools python3-packaging python3-pyyaml make golang nodejs yarnpkg
@@ -15,9 +15,9 @@ RUN dnf upgrade -y && \
 ENV GOPROXY=https://proxy.golang.org,direct
 
 WORKDIR /tmp/grafana-build
-COPY grafana.spec create_bundles.sh build_frontend.sh list_bundled_nodejs_packages.py *.patch .
+COPY grafana.spec create_vendor_bundle.sh build_frontend.sh list_bundled_nodejs_packages.py *.patch .
 RUN mkdir bundles
-CMD ./create_bundles.sh && mv *.tar.* bundles
+CMD ./create_vendor_bundle.sh && mv *.tar.* bundles
 EOF
 
 podman run --name grafana-build --replace "$@" grafana-build
