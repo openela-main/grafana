@@ -126,6 +126,14 @@ optional_policy(`
 	allow grafana_t postgresql_var_run_t:sock_file write;
 ')
 
+optional_policy(`
+	require {
+		type autofs_t;
+		class dir {getattr};
+	}
+	allow grafana_t autofs_t:dir getattr;
+')
+
 manage_dirs_pattern(grafana_t, grafana_conf_t, grafana_conf_t)
 manage_files_pattern(grafana_t, grafana_conf_t, grafana_conf_t)
 
@@ -189,12 +197,12 @@ tunable_policy(`grafana_can_tcp_connect_mysql_port',` # Mysql default tcp port 3
 	corenet_tcp_connect_mysqld_port(grafana_t)
 ')
 
-tunable_policy(`grafana_can_tcp_connect_postgresql_port',` # Postgresql default tcp port 5432
-	corenet_tcp_connect_postgresql_port(grafana_t)
-')
-
 tunable_policy(`grafana_can_tcp_connect_prometheus_port',` # Prometheus default tcp port 9090
 	corenet_tcp_connect_websm_port(grafana_t)
+')
+
+tunable_policy(`grafana_can_tcp_connect_postgresql_port',` # Postgresql default tcp port 5432
+	corenet_tcp_connect_postgresql_port(grafana_t)
 ')
 
 optional_policy(`
