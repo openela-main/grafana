@@ -82,6 +82,9 @@ can_exec(grafana_t, grafana_pcp_exec_t)
 corenet_tcp_connect_all_ephemeral_ports(grafana_t)
 grafana_exec(grafana_t)
 
+# Allow grafana to connect to mssql's default tcp port of 1433 
+corenet_tcp_connect_mssql_port(grafana_t)
+
 ########################################
 #
 # grafana local policy
@@ -129,6 +132,14 @@ optional_policy(`
 		class lnk_file { read };
 	}
 	allow grafana_t proc_net_t:lnk_file read;
+')
+
+optional_policy(`
+	require {
+		type autofs_t;
+		class dir {getattr};
+	}
+	allow grafana_t autofs_t:dir getattr;
 ')
 
 manage_dirs_pattern(grafana_t, grafana_conf_t, grafana_conf_t)
@@ -194,12 +205,12 @@ tunable_policy(`grafana_can_tcp_connect_mysql_port',` # Mysql default tcp port 3
 	corenet_tcp_connect_mysqld_port(grafana_t)
 ')
 
-tunable_policy(`grafana_can_tcp_connect_postgresql_port',` # Postgresql default tcp port 5432
-	corenet_tcp_connect_postgresql_port(grafana_t)
-')
-
 tunable_policy(`grafana_can_tcp_connect_prometheus_port',` # Prometheus default tcp port 9090
 	corenet_tcp_connect_websm_port(grafana_t)
+')
+
+tunable_policy(`grafana_can_tcp_connect_postgresql_port',` # Postgresql default tcp port 5432
+	corenet_tcp_connect_postgresql_port(grafana_t)
 ')
 
 optional_policy(`

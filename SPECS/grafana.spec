@@ -25,7 +25,7 @@ end}
 
 Name:             grafana
 Version:          10.2.6
-Release:          7%{?dist}
+Release:          8%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -1028,6 +1028,9 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Wed Jan 29 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-8
+- Resolves RHEL-75922: grafana selinux issue with autofs_t
+
 * Wed Oct 16 2024 Sam Feifer <sfeifer@redhat.com> 10.2.6-7
 - Resolves RHEL-62308: CVE-2024-47875
 
