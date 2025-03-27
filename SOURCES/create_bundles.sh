@@ -21,7 +21,7 @@ pushd "${SOURCE_DIR}"
 
 # Vendor Go dependencies
 patch -p1 --fuzz=0 < ../0004-remove-unused-backend-dependencies.patch
-patch -p1 --fuzz=0 < ../0011-fix-dompurify-CVE.patch
+patch -p1 --fuzz=0 < ../0012-fix-jwt-CVE.patch
 go mod vendor
 
 # Generate Go files
@@ -60,6 +60,7 @@ awk '$2 ~ /^v/ && $4 != "indirect" {print "Provides: bundled(golang(" $1 ")) = "
 
 # Vendor Node.js dependencies
 patch -p1 --fuzz=0 < ../0005-remove-unused-frontend-crypto.patch
+patch -p1 --fuzz=0 < ../0011-fix-dompurify-CVE.patch
 export HUSKY=0
 yarn install --frozen-lockfile
 
