@@ -25,7 +25,7 @@ end}
 
 Name:             grafana
 Version:          10.2.6
-Release:          9%{?dist}
+Release:          10%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -36,13 +36,13 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 # Source1 contains the bundled Go and Node.js dependencies
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source1:          grafana-vendor-%{version}-9.tar.xz
+Source1:          grafana-vendor-%{version}-8.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source2:          grafana-webpack-%{version}-9.tar.gz
+Source2:          grafana-webpack-%{version}-8.tar.gz
 %endif
 
 # Source3 contains the systemd-sysusers configuration
@@ -78,7 +78,6 @@ Patch9:           0009-update-wrappers-and-systemd-with-distro-paths.patch
 # https://github.com/grafana/grafana/commit/bae86dbeb0ad68a205454e98e76985dc393183d4
 Patch10:          0010-remove-bcrypt-references.patch
 Patch11:          0011-fix-dompurify-CVE.patch
-Patch12:          0012-fix-jwt-CVE.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -250,7 +249,7 @@ Provides: bundled(golang(github.com/andybalholm/brotli)) = 1.0.4
 Provides: bundled(golang(github.com/go-kit/log)) = 0.2.1
 Provides: bundled(golang(github.com/go-openapi/loads)) = 0.21.2
 Provides: bundled(golang(github.com/go-openapi/runtime)) = 0.26.0
-Provides: bundled(golang(github.com/golang-jwt/jwt/v4)) = 4.5.2
+Provides: bundled(golang(github.com/golang-jwt/jwt/v4)) = 4.5.0
 Provides: bundled(golang(github.com/golang/protobuf)) = 1.5.3
 Provides: bundled(golang(github.com/googleapis/gax-go/v2)) = 2.12.0
 Provides: bundled(golang(github.com/gorilla/mux)) = 1.8.0
@@ -780,7 +779,6 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 9 -p1
 %patch -P 10 -p1
 %patch -P 11 -p1
-%patch -P 12 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1030,17 +1028,14 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
-* Tue Mar 25 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-9
-- Resolves RHEL-84634: CVE-2025-30204
+* Wed Jan 29 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-10
+- Resolves RHEL-75919: grafana selinux issue with autofs_t
 
-* Wed Jan 29 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-8
-- Resolves RHEL-75922: grafana selinux issue with autofs_t
+* Thu Dec 5 2024 Sam Feifer <sfeifer@redhat.com> 10.2.6-9
+- Resolves RHEL-69939: allow mssql datasource in selinux policy
 
-* Wed Oct 16 2024 Sam Feifer <sfeifer@redhat.com> 10.2.6-7
-- Resolves RHEL-62308: CVE-2024-47875
-
-* Fri Sep 27 2024 Sam Feifer <sfeifer@redhat.com> 10.2.6-6
-- Resolves: RHEL-57927
+* Wed Oct 16 2024 Sam Feifer <sfeifer@redhat.com> 10.2.6-8
+- Resolves RHEL-62312: CVE-2024-47875
 
 * Fri Jul 19 2024 Lauren Chilton <lchilton@redhat.com> 10.2.6-5
 - Resolves RHEL-47185
