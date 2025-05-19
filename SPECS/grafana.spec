@@ -35,7 +35,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          22%{?dist}
+Release:          23%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -97,6 +97,7 @@ Patch13:          0013-snapshot-delete-check-org.patch
 Patch14:          0014-resolve-dompurify-CVE.patch
 Patch15:          0015-update-go-git-version.patch
 Patch16:          0016-fix-macaron-version-error.patch
+Patch17:          0017-fix-CVE-2025-4123.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -775,6 +776,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 14 -p1
 %patch -P 15 -p1
 %patch -P 16 -p1
+%patch -P 17 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1021,6 +1023,9 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Tue May 13 2025 Sam Feifer <sfeifer@redhat.com> 9.2.10-23
+- Resolves RHEL-89949: CVE-2025-4123
+
 * Wed Feb 5 2025 Sam Feifer <sfeifer@redhat.com> 9.2.10-22
 - Resolves RHEL-75921: grafana selinux issue with autofs_t
 
