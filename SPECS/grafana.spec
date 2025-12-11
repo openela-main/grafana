@@ -19,13 +19,14 @@
 end}
 
 %global gomodulesmode GO111MODULE=auto
-%global gotestflags   %{gotestflags} -tags=integration
+%global _gotestflags_save %{?gotestflags}
+%global gotestflags %{?_gotestflags_save} -tags=integration
 
 %global selinux_variants mls targeted
 
 Name:             grafana
 Version:          10.2.6
-Release:          20%{?dist}
+Release:          21%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -1016,6 +1017,10 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Wed Dec 3 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-21
+- Resolves RHEL-125631: CVE-2025-58183
+- Resolves RHEL-132760: Grafana-selinux prevents plugins from searching cgroups
+
 * Wed Jun 18 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-20
 - Resolves RHEL-97520: Rework grafana-selinux spec file sections
 - Resolves RHEL-92648: Add additional SELinux rules for grafana-selinux package to allow LDAP connections
