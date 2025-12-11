@@ -29,18 +29,24 @@ gen_tunable(grafana_can_tcp_connect_mysql_port, false)
 
 ## <desc>
 ## <p>
-## Allow grafana to connect to postgresql's default tcp port of 5432
-## </p>
-## </desc>
-gen_tunable(grafana_can_tcp_connect_postgresql_port, false)
-
-## <desc>
-## <p>
 ## Allow grafana to connect to prometheus' default tcp port of 9090
 ## </p>
 ## </desc>
 gen_tunable(grafana_can_tcp_connect_prometheus_port, false)
 
+## <desc>            
+## <p>
+## Allow grafana to connect to postgresql's default tcp port of 5432            
+## </p>            
+## </desc>            
+gen_tunable(grafana_can_tcp_connect_postgresql_port, false)
+
+## <desc>            
+## <p>
+## Allow grafana to connect to ldap's tcp port           
+## </p>            
+## </desc>  
+gen_tunable(grafana_can_tcp_connect_ldap_port, false)
 
 type grafana_t;
 type grafana_exec_t;
@@ -104,10 +110,28 @@ allow grafana_t self:netlink_route_socket { create bind getattr nlmsg_read };
 
 optional_policy(`
 	require {
+		type cgroup_t;
+		class dir { search };
+		class file { open read };
+	}
+	allow grafana_t cgroup_t:dir search;
+	allow grafana_t cgroup_t:file { open read };
+')
+
+optional_policy(`
+	require {
 		type smtp_port_t;
 		class tcp_socket { name_connect };
 	}
 	allow grafana_t smtp_port_t:tcp_socket name_connect;
+')
+
+optional_policy(`
+	require {
+		type ntop_port_t;
+		class tcp_socket { name_bind };
+	}
+	allow grafana_t ntop_port_t:tcp_socket name_bind;
 ')
 
 optional_policy(`
@@ -143,6 +167,14 @@ optional_policy(`
 		class dir {getattr};
 	}
 	allow grafana_t autofs_t:dir getattr;
+')
+
+optional_policy(`
+	require {
+		type postfix_local_t;
+		class dir { search };
+	}
+	allow postfix_local_t grafana_var_lib_t:dir search;
 ')
 
 manage_dirs_pattern(grafana_t, grafana_conf_t, grafana_conf_t)
@@ -214,6 +246,10 @@ tunable_policy(`grafana_can_tcp_connect_prometheus_port',` # Prometheus default 
 
 tunable_policy(`grafana_can_tcp_connect_postgresql_port',` # Postgresql default tcp port 5432
 	corenet_tcp_connect_postgresql_port(grafana_t)
+')
+
+tunable_policy(`grafana_can_tcp_connect_ldap_port',`
+	corenet_tcp_connect_ldap_port(grafana_t)
 ')
 
 optional_policy(`
