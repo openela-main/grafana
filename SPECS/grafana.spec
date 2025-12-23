@@ -29,13 +29,14 @@
 end}
 
 %global gomodulesmode GO111MODULE=auto
-%global gotestflags   %{gotestflags} -tags=integration
+%global _gotestflags_save %{?gotestflags}
+%global gotestflags %{?_gotestflags_save} -tags=integration
 
 %global selinux_variants mls targeted
 
 Name:             grafana
 Version:          9.2.10
-Release:          25%{?dist}
+Release:          26%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -1023,6 +1024,10 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Mon Dec 1 2025 Sam Feifer <sfeifer@redhat.com> 9.2.10-26
+- Resolves RHEL-125664: CVE-2025-58183
+- Resolves RHEL-132759: Grafana-selinux prevents plugins from searching cgroups
+
 * Wed Jun 4 2025 Sam Feifer <sfeifer@redhat.com> 9.2.10-25
 - Resolves RHEL-89269: CVE-2025-22871
 
