@@ -36,7 +36,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          26%{?dist}
+Release:          27%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -1024,6 +1024,9 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Mon Jan 26 2026 Sam Feifer <sfeifer@redhat.com> 9.2.10-27
+- Resolves RHEL-140537: CVE-2025-61729
+
 * Mon Dec 1 2025 Sam Feifer <sfeifer@redhat.com> 9.2.10-26
 - Resolves RHEL-125664: CVE-2025-58183
 - Resolves RHEL-132759: Grafana-selinux prevents plugins from searching cgroups
