@@ -26,7 +26,7 @@ end}
 
 Name:             grafana
 Version:          10.2.6
-Release:          21%{?dist}
+Release:          22%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -80,6 +80,7 @@ Patch10:          0010-remove-bcrypt-references.patch
 Patch11:          0011-fix-dompurify-CVE.patch
 Patch12:          0012-fix-jwt-CVE.patch
 Patch13:          0013-fix-CVE-2025-4123.patch
+Patch14:          0014-Fix-CVE-2026-21721.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -773,6 +774,7 @@ rm -r plugins-bundled
 %patch -P 11 -p1
 %patch -P 12 -p1
 %patch -P 13 -p1
+%patch -P 14 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1017,6 +1019,13 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Tue Feb 17 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-22
+- Resolves RHEL-144948: CVE-2026-21721
+- Resolves RHEL-146721: CVE-2025-61726
+- Resolves RHEL-146926: CVE-2025-61729
+- Resolves RHEL-147351: CVE-2025-61728
+- Resolves RHEL-149227: CVE-2025-68121
+
 * Wed Dec 3 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-21
 - Resolves RHEL-125631: CVE-2025-58183
 - Resolves RHEL-132760: Grafana-selinux prevents plugins from searching cgroups
