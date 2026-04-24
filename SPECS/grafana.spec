@@ -26,7 +26,7 @@ end}
 
 Name:             grafana
 Version:          10.2.6
-Release:          19%{?dist}
+Release:          20%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -82,6 +82,7 @@ Patch11:          0011-fix-dompurify-CVE.patch
 Patch12:          0012-fix-jwt-CVE.patch
 Patch13:          0013-fix-CVE-2025-4123.patch
 Patch14:          0014-Fix-CVE-2026-21721.patch
+Patch15:          0015-Fix-CVE-2026-27877.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -778,6 +779,7 @@ rm -r plugins-bundled
 %patch -P 12 -p1
 %patch -P 13 -p1
 %patch -P 14 -p1
+%patch -P 15 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1023,6 +1025,9 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Wed Apr 22 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-20
+- Resolves RHEL-161802: CVE-2026-27877
+
 * Tue Feb 17 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-19
 - Resolves RHEL-158728: CVE-2026-25679
 
