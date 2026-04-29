@@ -26,7 +26,7 @@ end}
 
 Name:             grafana
 Version:          10.2.6
-Release:          20%{?dist}
+Release:          21%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -1025,6 +1025,10 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Tue Apr 28 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-21
+- Resolves RHEL-166655: CVE-2026-32282
+- Resolves RHEL-167660: CVE-2026-32283
+
 * Wed Apr 22 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-20
 - Resolves RHEL-161802: CVE-2026-27877
 
