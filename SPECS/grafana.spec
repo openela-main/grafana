@@ -26,7 +26,7 @@ end}
 
 Name:             grafana
 Version:          10.2.6
-Release:          21%{?dist}
+Release:          22%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -1025,26 +1025,26 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
-* Tue Apr 28 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-21
-- Resolves RHEL-166655: CVE-2026-32282
-- Resolves RHEL-167660: CVE-2026-32283
+* Wed Apr 22 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-22
+- Resolves RHEL-161803: CVE-2026-27877
+- Resolves RHEL-166678: CVE-2026-32282
+- Resolves RHEL-167678: CVE-2026-32283
 
-* Wed Apr 22 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-20
-- Resolves RHEL-161802: CVE-2026-27877
+* Wed Apr 1 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-21
+- Resolves RHEL-158767: CVE-2026-25679
 
-* Tue Feb 17 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-19
-- Resolves RHEL-158728: CVE-2026-25679
+* Tue Feb 17 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-20
+- Resolves RHEL-144960: CVE-2026-21721
+- Resolves RHEL-145419: CVE-2025-61728
+- Resolves RHEL-146103: CVE-2025-61726
+- Resolves RHEL-149639: CVE-2025-68121
 
-* Tue Feb 17 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-17
-- Resolves RHEL-144959: CVE-2026-21721
-- Resolves RHEL-146863: CVE-2025-61726
-- Resolves RHEL-147081: CVE-2025-61729
-- Resolves RHEL-147370: CVE-2025-61728
-- Resolves RHEL-149621: CVE-2025-68121
+* Mon Jan 26 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-19
+- Resolves RHEL-140549: CVE-2025-61729
 
-* Wed Dec 3 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-17
-- Resolves RHEL-125692: CVE-2025-58183
-- Resolves RHEL-120426: Grafana-selinux prevents plugins from searching cgroups
+* Mon Dec 1 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-18
+- Resolves RHEL-125696: CVE-2025-58183
+- Resolves RHEL-132757: Grafana-selinux prevents plugins from searching cgroups
 
 * Wed Jun 18 2025 Sam Feifer <sfeifer@redhat.com> 10.2.6-15
 - Resolves RHEL-97518: Rework grafana-selinux spec file sections
