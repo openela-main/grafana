@@ -36,7 +36,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          30%{?dist}
+Release:          31%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -47,7 +47,7 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 # Source1 contains the bundled Go and Node.js dependencies
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source1:          grafana-vendor-%{version}-21.tar.xz
+Source1:          grafana-vendor-%{version}-31.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
@@ -99,11 +99,13 @@ Patch14:          0014-resolve-dompurify-CVE.patch
 Patch15:          0015-update-go-git-version.patch
 Patch16:          0016-fix-macaron-version-error.patch
 Patch17:          0017-fix-CVE-2025-4123.patch
+Patch18:          0018-fix-x-net-CVE.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
 Patch1002:        1002-vendor-use-pbkdf2-from-OpenSSL.patch
 Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
+Patch1004:        1004-vendor-fix-idna-unicode-version-gate.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -259,12 +261,12 @@ Provides: bundled(golang(go.opentelemetry.io/otel)) = 1.6.3
 Provides: bundled(golang(go.opentelemetry.io/otel/exporters/jaeger)) = 1.0.0
 Provides: bundled(golang(go.opentelemetry.io/otel/sdk)) = 1.6.3
 Provides: bundled(golang(go.opentelemetry.io/otel/trace)) = 1.6.3
-Provides: bundled(golang(golang.org/x/crypto)) = 0.31.0
+Provides: bundled(golang(golang.org/x/crypto)) = 0.51.0
 Provides: bundled(golang(golang.org/x/exp)) = 0.0.0-20240719175910.8a7402abbf56
 Provides: bundled(golang(golang.org/x/oauth2)) = 0.0.0-20220608161450.d0670ef3b1eb
-Provides: bundled(golang(golang.org/x/sync)) = 0.10.0
+Provides: bundled(golang(golang.org/x/sync)) = 0.20.0
 Provides: bundled(golang(golang.org/x/time)) = 0.0.0-20220609170525.579cf78fd858
-Provides: bundled(golang(golang.org/x/tools)) = 0.23.0
+Provides: bundled(golang(golang.org/x/tools)) = 0.44.0
 Provides: bundled(golang(gonum.org/v1/gonum)) = 0.11.0
 Provides: bundled(golang(google.golang.org/api)) = 0.74.0
 Provides: bundled(golang(google.golang.org/grpc)) = 1.45.0
@@ -288,7 +290,7 @@ Provides: bundled(golang(github.com/grafana/grafana-google-sdk-go)) = 0.0.0-2021
 Provides: bundled(golang(github.com/hashicorp/go-multierror)) = 1.1.1
 Provides: bundled(golang(github.com/segmentio/encoding)) = 0.3.5
 Provides: bundled(golang(go.uber.org/atomic)) = 1.9.0
-Provides: bundled(golang(golang.org/x/text)) = 0.21.0
+Provides: bundled(golang(golang.org/x/text)) = 0.37.0
 Provides: bundled(golang(google.golang.org/genproto)) = 0.0.0-20220421151946.72621c1f0bd3
 Provides: bundled(golang(cloud.google.com/go/kms)) = 1.4.0
 Provides: bundled(golang(github.com/Azure/azure-sdk-for-go/sdk/azidentity)) = 0.13.2
@@ -778,6 +780,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 15 -p1
 %patch -P 16 -p1
 %patch -P 17 -p1
+%patch -P 18 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -786,6 +789,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %ifarch s390x i686 armv7hl
 %patch -P 1003 -p1
 %endif
+%patch -P 1004 -p1
 
 
 %build
@@ -1024,6 +1028,9 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Wed Jul 01 2026 Sam Feifer <sfeifer@redhat.com> 9.2.10-31
+- Resolves RHEL-183728: CVE-2026-39821
+
 * Wed Apr 22 2026 Sam Feifer <sfeifer@redhat.com> 9.2.10-30
 - Resolves RHEL-166519: CVE-2026-32282
 - Resolves RHEL-167380: CVE-2026-32280
