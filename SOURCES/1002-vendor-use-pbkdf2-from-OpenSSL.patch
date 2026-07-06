@@ -107,29 +107,37 @@ index 0000000000..e244fb5663
 +	panic("boringcrypto: not available")
 +}
 diff --git a/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go b/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go
-index 593f653008..799a611f94 100644
+index 04a3487cf1..b20657944e 100644
 --- a/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go
 +++ b/vendor/golang.org/x/crypto/pbkdf2/pbkdf2.go
-@@ -19,8 +19,11 @@ pbkdf2.Key.
- package pbkdf2 // import "golang.org/x/crypto/pbkdf2"
- 
+@@ -12,8 +12,11 @@
+ package pbkdf2
+
  import (
 +	"crypto/boring"
- 	"crypto/hmac"
+ 	"crypto/pbkdf2"
  	"hash"
 +
 +	xboring "golang.org/x/crypto/internal/boring"
  )
- 
+
  // Key derives a key from the password, salt and iteration count, returning a
-@@ -40,6 +43,10 @@ import (
- // Using a higher iteration count will increase the cost of an exhaustive
- // search but will also make derivation proportionally slower.
+@@ -21,6 +24,10 @@
+ // derived based on the method described as PBKDF2 with the HMAC variant using
+ // the supplied hash function.
  func Key(password, salt []byte, iter, keyLen int, h func() hash.Hash) []byte {
 +	if boring.Enabled() {
 +		return xboring.Pbkdf2Key(password, salt, iter, keyLen, h)
 +	}
 +
- 	prf := hmac.New(h, password)
- 	hashLen := prf.Size()
- 	numBlocks := (keyLen + hashLen - 1) / hashLen
+ 	out, err := pbkdf2.Key(h, string(password), salt, iter, keyLen)
+ 	if err != nil {
+ 		// FIPS 140 enforcement, or an invalid key length.
+diff --git a/vendor/modules.txt b/vendor/modules.txt
+index 1234567890..abcdef1234 100644
+--- a/vendor/modules.txt
++++ b/vendor/modules.txt
+@@ -2028,2 +2028,3 @@
+ golang.org/x/crypto/internal/alias
++golang.org/x/crypto/internal/boring
+ golang.org/x/crypto/internal/poly1305

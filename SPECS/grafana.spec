@@ -8,15 +8,7 @@
 %define enable_fips_mode 0
 %endif
 
-%global grafana_arches %{lua: go_arches = {}
-  for arch in rpm.expand("%{go_arches}"):gmatch("%S+") do
-    go_arches[arch] = 1
-  end
-  for arch in rpm.expand("%{nodejs_arches}"):gmatch("%S+") do
-    if go_arches[arch] then
-      print(arch .. " ")
-  end
-end}
+%global grafana_arches %{go_arches}
 
 %global gomodulesmode GO111MODULE=auto
 %global _gotestflags_save %{?gotestflags}
@@ -26,7 +18,7 @@ end}
 
 Name:             grafana
 Version:          10.2.6
-Release:          22%{?dist}
+Release:          23%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -37,13 +29,13 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 # Source1 contains the bundled Go and Node.js dependencies
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source1:          grafana-vendor-%{version}-11.tar.xz
+Source1:          grafana-vendor-%{version}-23.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source2:          grafana-webpack-%{version}-11.tar.gz
+Source2:          grafana-webpack-%{version}-23.tar.gz
 %endif
 
 # Source3 contains the systemd-sysusers configuration
@@ -83,12 +75,14 @@ Patch12:          0012-fix-jwt-CVE.patch
 Patch13:          0013-fix-CVE-2025-4123.patch
 Patch14:          0014-Fix-CVE-2026-21721.patch
 Patch15:          0015-Fix-CVE-2026-27877.patch
+Patch16:          0016-fix-x-net-CVE.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
 Patch1002:        1002-vendor-use-pbkdf2-from-OpenSSL.patch
 Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
 Patch1004:        1004-vendor-Redacted-Url-in-logs.patch
+Patch1005:        1005-vendor-fix-idna-unicode-version-gate.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -233,13 +227,13 @@ Provides: bundled(golang(go.opentelemetry.io/contrib/instrumentation/net/http/ht
 Provides: bundled(golang(go.opentelemetry.io/otel/exporters/jaeger)) = 1.10.0
 Provides: bundled(golang(go.opentelemetry.io/otel/sdk)) = 1.21.0
 Provides: bundled(golang(go.opentelemetry.io/otel/trace)) = 1.21.0
-Provides: bundled(golang(golang.org/x/crypto)) = 0.17.0
+Provides: bundled(golang(golang.org/x/crypto)) = 0.51.0
 Provides: bundled(golang(golang.org/x/exp)) = 0.0.0-20230321023759.10a507213a29
-Provides: bundled(golang(golang.org/x/net)) = 0.19.0
+Provides: bundled(golang(golang.org/x/net)) = 0.55.0
 Provides: bundled(golang(golang.org/x/oauth2)) = 0.15.0
-Provides: bundled(golang(golang.org/x/sync)) = 0.4.0
+Provides: bundled(golang(golang.org/x/sync)) = 0.20.0
 Provides: bundled(golang(golang.org/x/time)) = 0.3.0
-Provides: bundled(golang(golang.org/x/tools)) = 0.13.0
+Provides: bundled(golang(golang.org/x/tools)) = 0.44.0
 Provides: bundled(golang(gonum.org/v1/gonum)) = 0.12.0
 Provides: bundled(golang(google.golang.org/api)) = 0.148.0
 Provides: bundled(golang(google.golang.org/grpc)) = 1.59.0
@@ -263,7 +257,7 @@ Provides: bundled(golang(github.com/hashicorp/go-multierror)) = 1.1.1
 Provides: bundled(golang(github.com/modern-go/reflect2)) = 1.0.2
 Provides: bundled(golang(github.com/olekukonko/tablewriter)) = 0.0.5
 Provides: bundled(golang(go.uber.org/atomic)) = 1.11.0
-Provides: bundled(golang(golang.org/x/text)) = 0.14.0
+Provides: bundled(golang(golang.org/x/text)) = 0.37.0
 Provides: bundled(golang(google.golang.org/genproto)) = 0.0.0-20231012201019.e917dd12ba7a
 Provides: bundled(golang(cloud.google.com/go/kms)) = 1.15.2
 Provides: bundled(golang(github.com/Azure/azure-sdk-for-go/sdk/azidentity)) = 1.3.0
@@ -308,7 +302,7 @@ Provides: bundled(golang(github.com/redis/go-redis/v9)) = 9.0.2
 Provides: bundled(golang(github.com/weaveworks/common)) = 0.0.0-20230511094633.334485600903
 Provides: bundled(golang(github.com/xeipuuv/gojsonpointer)) = 0.0.0-20180127040702.4e3ac2762d5f
 Provides: bundled(golang(go.opentelemetry.io/contrib/samplers/jaegerremote)) = 0.15.1
-Provides: bundled(golang(golang.org/x/mod)) = 0.12.0
+Provides: bundled(golang(golang.org/x/mod)) = 0.35.0
 Provides: bundled(golang(gopkg.in/square/go-jose.v2)) = 2.6.0
 Provides: bundled(golang(k8s.io/utils)) = 0.0.0-20230406110748.d93618cff8a2
 Provides: bundled(golang(github.com/spf13/cobra)) = 1.7.0
@@ -780,6 +774,7 @@ rm -r plugins-bundled
 %patch -P 13 -p1
 %patch -P 14 -p1
 %patch -P 15 -p1
+%patch -P 16 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -789,6 +784,7 @@ rm -r plugins-bundled
 %patch -P 1003 -p1
 %endif
 %patch -P 1004 -p1
+%patch -P 1005 -p1
 
 
 %build
@@ -1025,6 +1021,10 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Thu Jul 02 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-23
+- Resolves RHEL-183803: CVE-2026-39821
+- Resolves RHEL-188280
+
 * Wed Apr 22 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-22
 - Resolves RHEL-161803: CVE-2026-27877
 - Resolves RHEL-166678: CVE-2026-32282

@@ -1,0 +1,12 @@
+diff --git a/vendor/golang.org/x/net/idna/idna.go b/vendor/golang.org/x/net/idna/idna.go
+--- a/vendor/golang.org/x/net/idna/idna.go
++++ b/vendor/golang.org/x/net/idna/idna.go
+@@ -400,7 +400,7 @@
+ 				// Spec says keep the old label.
+ 				continue
+ 			}
+-			if unicode16 && err == nil && len(u) > 0 && isASCII(u) {
++			if err == nil && len(u) > 0 && isASCII(u) {
+ 				err = punyError(enc)
+ 			}
+ 			isBidi = isBidi || bidirule.DirectionString(u) != bidi.LeftToRight
