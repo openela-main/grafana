@@ -22,6 +22,7 @@ pushd "${SOURCE_DIR}"
 patch -p1 --fuzz=0 < ../0004-remove-unused-backend-dependencies.patch
 patch -p1 --fuzz=0 < ../0015-update-go-git-version.patch
 patch -p1 --fuzz=0 < ../0018-fix-x-net-CVE.patch
+patch -p1 --fuzz=0 < ../0019-update-go-billy-version.patch
 go mod vendor
 
 # Generate Go files

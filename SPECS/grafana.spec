@@ -18,15 +18,7 @@
 %define enable_fips_mode 0
 %endif
 
-%global grafana_arches %{lua: go_arches = {}
-  for arch in rpm.expand("%{go_arches}"):gmatch("%S+") do
-    go_arches[arch] = 1
-  end
-  for arch in rpm.expand("%{nodejs_arches}"):gmatch("%S+") do
-    if go_arches[arch] then
-      print(arch .. " ")
-  end
-end}
+%global grafana_arches %{go_arches}
 
 %global gomodulesmode GO111MODULE=auto
 %global _gotestflags_save %{?gotestflags}
@@ -36,7 +28,7 @@ end}
 
 Name:             grafana
 Version:          9.2.10
-Release:          31%{?dist}
+Release:          32%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -47,7 +39,7 @@ Source0:          https://github.com/grafana/grafana/archive/v%{version}/%{name}
 # Source1 contains the bundled Go and Node.js dependencies
 # Note: In case there were no changes to this tarball, the NVR of this tarball
 # lags behind the NVR of this package.
-Source1:          grafana-vendor-%{version}-31.tar.xz
+Source1:          grafana-vendor-%{version}-32.tar.xz
 
 %if %{compile_frontend} == 0
 # Source2 contains the precompiled frontend
@@ -100,6 +92,7 @@ Patch15:          0015-update-go-git-version.patch
 Patch16:          0016-fix-macaron-version-error.patch
 Patch17:          0017-fix-CVE-2025-4123.patch
 Patch18:          0018-fix-x-net-CVE.patch
+Patch19:          0019-update-go-billy-version.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -209,7 +202,7 @@ Provides: bundled(golang(github.com/gobwas/glob)) = 0.2.3
 Provides: bundled(golang(github.com/gogo/protobuf)) = 1.3.2
 Provides: bundled(golang(github.com/golang/mock)) = 1.6.0
 Provides: bundled(golang(github.com/golang/snappy)) = 0.0.4
-Provides: bundled(golang(github.com/google/go-cmp)) = 0.6.0
+Provides: bundled(golang(github.com/google/go-cmp)) = 0.7.0
 Provides: bundled(golang(github.com/google/uuid)) = 1.3.0
 Provides: bundled(golang(github.com/google/wire)) = 0.6.0
 Provides: bundled(golang(github.com/gorilla/websocket)) = 1.5.0
@@ -246,7 +239,7 @@ Provides: bundled(golang(github.com/prometheus/common)) = 0.37.0
 Provides: bundled(golang(github.com/prometheus/prometheus)) = 1.8.2-0.20211011171444.354d8d2ecfac
 Provides: bundled(golang(github.com/robfig/cron/v3)) = 3.0.1
 Provides: bundled(golang(github.com/russellhaering/goxmldsig)) = 1.1.1
-Provides: bundled(golang(github.com/stretchr/testify)) = 1.10.0
+Provides: bundled(golang(github.com/stretchr/testify)) = 1.11.1
 Provides: bundled(golang(github.com/teris-io/shortid)) = 0.0.0-20171029131806.771a37caa5cf
 Provides: bundled(golang(github.com/ua-parser/uap-go)) = 0.0.0-20211112212520.00c877edfe0f
 Provides: bundled(golang(github.com/uber/jaeger-client-go)) = 2.29.1+incompatible
@@ -262,7 +255,7 @@ Provides: bundled(golang(go.opentelemetry.io/otel/exporters/jaeger)) = 1.0.0
 Provides: bundled(golang(go.opentelemetry.io/otel/sdk)) = 1.6.3
 Provides: bundled(golang(go.opentelemetry.io/otel/trace)) = 1.6.3
 Provides: bundled(golang(golang.org/x/crypto)) = 0.51.0
-Provides: bundled(golang(golang.org/x/exp)) = 0.0.0-20240719175910.8a7402abbf56
+Provides: bundled(golang(golang.org/x/exp)) = 0.0.0-20260410095643.746e56fc9e2f
 Provides: bundled(golang(golang.org/x/oauth2)) = 0.0.0-20220608161450.d0670ef3b1eb
 Provides: bundled(golang(golang.org/x/sync)) = 0.20.0
 Provides: bundled(golang(golang.org/x/time)) = 0.0.0-20220609170525.579cf78fd858
@@ -781,6 +774,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 16 -p1
 %patch -P 17 -p1
 %patch -P 18 -p1
+%patch -P 19 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1028,6 +1022,10 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Tue Jul 21 2026 Sam Feifer <sfeifer@redhat.com> 9.2.10-32
+- Resolves RHEL-191816: CVE-2026-44740
+- Resolves RHEL-188279: Remove Lua ExclusiveArch macro for Konflux build
+
 * Wed Jul 01 2026 Sam Feifer <sfeifer@redhat.com> 9.2.10-31
 - Resolves RHEL-183728: CVE-2026-39821
 
