@@ -28,7 +28,7 @@
 
 Name:             grafana
 Version:          9.2.10
-Release:          32%{?dist}
+Release:          32%{?dist}.1
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -93,6 +93,8 @@ Patch16:          0016-fix-macaron-version-error.patch
 Patch17:          0017-fix-CVE-2025-4123.patch
 Patch18:          0018-fix-x-net-CVE.patch
 Patch19:          0019-update-go-billy-version.patch
+Patch20:          0020-fix-CVE-2026-42127.patch
+Patch21:          0021-fix-CVE-2026-33377.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -775,6 +777,8 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 17 -p1
 %patch -P 18 -p1
 %patch -P 19 -p1
+%patch -P 20 -p1
+%patch -P 21 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1022,6 +1026,10 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Thu Aug 6 2026 Sam Feifer <sfeifer@redhat.com> 9.2.10-32.1
+- Resolves RHEL-219393: CVE-2026-42127
+- Resolves RHEL-211017: CVE-2026-33377
+
 * Tue Jul 21 2026 Sam Feifer <sfeifer@redhat.com> 9.2.10-32
 - Resolves RHEL-191816: CVE-2026-44740
 - Resolves RHEL-188279: Remove Lua ExclusiveArch macro for Konflux build
