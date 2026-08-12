@@ -8,15 +8,7 @@
 %define enable_fips_mode 0
 %endif
 
-%global grafana_arches %{lua: go_arches = {}
-  for arch in rpm.expand("%{go_arches}"):gmatch("%S+") do
-    go_arches[arch] = 1
-  end
-  for arch in rpm.expand("%{nodejs_arches}"):gmatch("%S+") do
-    if go_arches[arch] then
-      print(arch .. " ")
-  end
-end}
+%global grafana_arches %{go_arches}
 
 %global gomodulesmode GO111MODULE=auto
 %global _gotestflags_save %{?gotestflags}
@@ -26,7 +18,7 @@ end}
 
 Name:             grafana
 Version:          10.2.6
-Release:          27%{?dist}
+Release:          28%{?dist}.4
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -83,6 +75,13 @@ Patch13:          0013-fix-CVE-2025-4123.patch
 Patch14:          0014-Fix-CVE-2026-21721.patch
 Patch15:          0015-Fix-CVE-2026-27877.patch
 Patch16:          0016-fix-x-net-CVE.patch
+# https://github.com/grafana/grafana/commit/42cdc39124912a8506a0c613c319c345aa950b29
+Patch17:          0017-fix-CVE-2026-33382.patch
+# https://github.com/grafana/grafana/commit/b4f9ec28ff58
+Patch18:          0018-fix-CVE-2026-33376.patch
+Patch19:          0019-fix-CVE-2026-8609.patch
+# https://github.com/grafana/grafana/commit/50cdaec1d828f34e8d2962038c3246f1db1ab565
+Patch20:          0020-fix-CVE-2026-33377.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -781,6 +780,10 @@ rm -r plugins-bundled
 %patch -P 14 -p1
 %patch -P 15 -p1
 %patch -P 16 -p1
+%patch -P 17 -p1
+%patch -P 18 -p1
+%patch -P 19 -p1
+%patch -P 20 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1026,6 +1029,21 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Thu Aug 06 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.4
+- Resolves RHEL-211020: CVE-2026-33377
+
+* Wed Aug 05 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.3
+- Resolves RHEL-211376: CVE-2026-8609
+
+* Wed Aug 05 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.2
+- Resolves RHEL-210981: CVE-2026-33376
+
+* Wed Aug 05 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.1
+- Resolves RHEL-211389: CVE-2026-33382
+
+* Wed Jul 22 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-28
+- Resolves RHEL-188282: Remove Lua ExclusiveArch macro for Konflux build
+
 * Wed Jul 01 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-27
 - Resolves: RHEL-183694: CVE-2026-39821
 
