@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          10.2.6
-Release:          23%{?dist}
+Release:          23%{?dist}.1
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -76,6 +76,8 @@ Patch13:          0013-fix-CVE-2025-4123.patch
 Patch14:          0014-Fix-CVE-2026-21721.patch
 Patch15:          0015-Fix-CVE-2026-27877.patch
 Patch16:          0016-fix-x-net-CVE.patch
+# https://github.com/grafana/grafana/commit/82ef13993059351bf21de35b8488bbd9b42df4f4
+Patch17:          0017-fix-CVE-2026-42127.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -775,6 +777,7 @@ rm -r plugins-bundled
 %patch -P 14 -p1
 %patch -P 15 -p1
 %patch -P 16 -p1
+%patch -P 17 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1021,6 +1024,10 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Thu Jul 30 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.1
+- fix CVE-2026-42127: cap request body size and validate public dashboard access
+- Resolves RHEL-219382
+
 * Thu Jul 02 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-23
 - Resolves RHEL-183803: CVE-2026-39821
 - Resolves RHEL-188280
