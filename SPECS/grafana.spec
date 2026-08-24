@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          10.2.6
-Release:          23%{?dist}.1
+Release:          23%{?dist}.2
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -78,6 +78,10 @@ Patch15:          0015-Fix-CVE-2026-27877.patch
 Patch16:          0016-fix-x-net-CVE.patch
 # https://github.com/grafana/grafana/commit/82ef13993059351bf21de35b8488bbd9b42df4f4
 Patch17:          0017-fix-CVE-2026-42127.patch
+Patch18:          0018-fix-CVE-2026-33376.patch
+Patch19:          0019-fix-CVE-2026-33377.patch
+Patch20:          0020-fix-CVE-2026-8609.patch
+Patch21:          0021-fix-CVE-2026-33382.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -778,6 +782,10 @@ rm -r plugins-bundled
 %patch -P 15 -p1
 %patch -P 16 -p1
 %patch -P 17 -p1
+%patch -P 18 -p1
+%patch -P 19 -p1
+%patch -P 20 -p1
+%patch -P 21 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1024,6 +1032,12 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Aug 20 2026 Lauren Chilton <lchilton@redhat.com> - 10.2.6-23.2
+- Resolves RHEL-210991: CVE-2026-33376
+- Resolves RHEL-211022: CVE-2026-33377
+- Resolves RHEL-242865: CVE-2026-8609
+- Resolves RHEL-242866: CVE-2026-33382
+
 * Thu Jul 30 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.1
 - fix CVE-2026-42127: cap request body size and validate public dashboard access
 - Resolves RHEL-219382
