@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          10.2.6
-Release:          23%{?dist}.2
+Release:          23%{?dist}.3
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -1032,6 +1032,17 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Mon Aug 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.3
+- Rebuild against updated golang
+- Resolves RHEL-251872
+- Resolves RHEL-251758
+- Resolves RHEL-242365
+- Resolves RHEL-242251
+- Resolves RHEL-241980
+- Resolves RHEL-241756
+- Resolves RHEL-241274
+- Resolves RHEL-241243
+
 * Aug 20 2026 Lauren Chilton <lchilton@redhat.com> - 10.2.6-23.2
 - Resolves RHEL-210991: CVE-2026-33376
 - Resolves RHEL-211022: CVE-2026-33377
