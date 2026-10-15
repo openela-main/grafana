@@ -28,7 +28,7 @@
 
 Name:             grafana
 Version:          9.2.10
-Release:          33%{?dist}
+Release:          35%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -95,6 +95,8 @@ Patch18:          0018-fix-x-net-CVE.patch
 Patch19:          0019-update-go-billy-version.patch
 Patch20:          0020-fix-CVE-2026-42127.patch
 Patch21:          0021-fix-CVE-2026-33377.patch
+# https://github.com/grafana/grafana/commit/ed22ed77ee8fc12d6e54b35cb54330c688a7115c
+Patch22:          0022-fix-CVE-2026-15815.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -779,6 +781,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 19 -p1
 %patch -P 20 -p1
 %patch -P 21 -p1
+%patch -P 22 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1026,6 +1029,14 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Wed Oct 14 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-35
+- CVE-2026-15815 grafana: PLUGIN ARCHIVE EXTRACTION ESCAPES THE PLUGIN DIRECTORY, ALLOWING CODE EXECUTION
+- Resolves RHEL-253157
+
+* Tue Sep 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-34
+- CVE-2026-42504 grafana: Golang MIME: Denial of Service via maliciously-crafted MIME header [rhel-9.8.z]
+- Resolves RHEL-266517
+
 * Mon Aug 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-33
 - Rebuild against updated golang
 - Resolves RHEL-251835
