@@ -28,7 +28,7 @@
 
 Name:             grafana
 Version:          9.2.10
-Release:          35%{?dist}
+Release:          36%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -804,7 +804,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 # required since RHEL 8.8 to fix the following error:
 # "imports crypto/boring: build constraints exclude all Go files in /usr/lib/golang/src/crypto/boring"
 # can be removed in a future Go release
-export GOEXPERIMENT=boringcrypto
+# export GOEXPERIMENT=boringcrypto
 # see grafana-X.Y.Z/pkg/build/cmd.go
 export LDFLAGS="-X main.version=%{version} -X main.buildstamp=${SOURCE_DATE_EPOCH}"
 for cmd in grafana-cli grafana-server; do
@@ -1029,6 +1029,13 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Wed Oct 21 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-36
+- Rebuild against updated golang
+- Resolves RHEL-287629
+- Resolves RHEL-279255
+- Resolves RHEL-278945
+- Resolves RHEL-278602
+
 * Wed Oct 14 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-35
 - CVE-2026-15815 grafana: PLUGIN ARCHIVE EXTRACTION ESCAPES THE PLUGIN DIRECTORY, ALLOWING CODE EXECUTION
 - Resolves RHEL-253157
