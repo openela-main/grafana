@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          10.2.6
-Release:          28%{?dist}.5
+Release:          28%{?dist}.9
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -82,6 +82,9 @@ Patch18:          0018-fix-CVE-2026-33376.patch
 Patch19:          0019-fix-CVE-2026-8609.patch
 # https://github.com/grafana/grafana/commit/50cdaec1d828f34e8d2962038c3246f1db1ab565
 Patch20:          0020-fix-CVE-2026-33377.patch
+Patch21:          0021-fix-CVE-2026-15815.patch
+# https://github.com/grafana/grafana/commit/09a3e924a59cc14725b88282d3b0dfe6ab3ec9be
+Patch22:          0022-fix-CVE-2026-17183.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -89,6 +92,8 @@ Patch1002:        1002-vendor-use-pbkdf2-from-OpenSSL.patch
 Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
 Patch1004:        1004-vendor-Redacted-Url-in-logs.patch
 Patch1005:        1005-vendor-fix-idna-unicode-version-gate.patch
+# https://github.com/grpc/grpc-go/commit/93e31b48545e2a8aaeb6e06b47fb249f94e6297f
+Patch1006:        1006-vendor-fix-CVE-2026-84445.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -784,6 +789,8 @@ rm -r plugins-bundled
 %patch -P 18 -p1
 %patch -P 19 -p1
 %patch -P 20 -p1
+%patch -P 21 -p1
+%patch -P 22 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -794,6 +801,7 @@ rm -r plugins-bundled
 %endif
 %patch -P 1004 -p1
 %patch -P 1005 -p1
+%patch -P 1006 -p1
 
 
 %build
@@ -806,9 +814,6 @@ rm -r plugins-bundled
 
 # see grafana-X.Y.Z/pkg/build/cmd.go
 export LDFLAGS="-X main.version=%{version} -X main.buildstamp=${SOURCE_DATE_EPOCH}"
-%if %{enable_fips_mode}
-export GOEXPERIMENT=boringcrypto
-%endif
 for cmd in grafana grafana-cli grafana-server; do
     %gobuild -o %{_builddir}/bin/${cmd} ./pkg/cmd/${cmd}
 done
@@ -935,9 +940,6 @@ yarn run jest
 # which is usually true except if the daylight saving time change falls into the last 10 days, then it's either 239 or 241 hours...
 # let's set the time zone to a time zone without daylight saving time
 export TZ=GMT
-%if %{enable_fips_mode}
-export GOEXPERIMENT=boringcrypto
-%endif
 
 # comment out temporarily while intermittent ngalert tests are investigated
 # % gotest ./pkg/...
@@ -1029,6 +1031,28 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Fri Oct 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.9
+- Rebuild against updated golang
+- Resolves RHEL-290737
+
+* Fri Oct 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.9
+- CVE-2026-17183 grafana: Grafana: Information disclosure vulnerability in Unified Alerting
+  in Unified Alerting
+- Resolves RHEL-290765
+
+* Tue Oct 20 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.8
+- Rebuild against updated golang
+- Resolves RHEL-287475
+- Resolves RHEL-279352
+- Resolves RHEL-278978
+- Resolves RHEL-278696
+
+* Thu Oct 08 2026 Lauren Chilton <lchilton@redhat.com> - 10.2.6-28.7
+- Resolves RHEL-253142: CVE-2026-15815
+
+* Wed Sep 16 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.6
+- Resolves RHEL-261888: CVE-2026-84445
+
 * Mon Aug 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-28.5
 - Rebuild against updated golang
 - Resolves RHEL-241197
