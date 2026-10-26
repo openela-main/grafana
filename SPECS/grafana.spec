@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          10.2.6
-Release:          23%{?dist}.3
+Release:          23%{?dist}.7
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -82,6 +82,9 @@ Patch18:          0018-fix-CVE-2026-33376.patch
 Patch19:          0019-fix-CVE-2026-33377.patch
 Patch20:          0020-fix-CVE-2026-8609.patch
 Patch21:          0021-fix-CVE-2026-33382.patch
+Patch22:          0022-fix-CVE-2026-15815.patch
+# https://github.com/grafana/grafana/pull/131061
+Patch23:          0023-fix-CVE-2026-17183.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -786,6 +789,8 @@ rm -r plugins-bundled
 %patch -P 19 -p1
 %patch -P 20 -p1
 %patch -P 21 -p1
+%patch -P 22 -p1
+%patch -P 23 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -809,7 +814,7 @@ rm -r plugins-bundled
 # required since RHEL 8.8 to fix the following error:
 # "imports crypto/boring: build constraints exclude all Go files in /usr/lib/golang/src/crypto/boring"
 # can be removed in a future Go release
-export GOEXPERIMENT=boringcrypto
+#export GOEXPERIMENT=boringcrypto
 # see grafana-X.Y.Z/pkg/build/cmd.go
 export LDFLAGS="-X main.version=%{version} -X main.buildstamp=${SOURCE_DATE_EPOCH}"
 for cmd in grafana grafana-cli grafana-server; do
@@ -1032,6 +1037,24 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Fri Oct 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.7
+- CVE-2026-17183 grafana: Grafana: Information disclosure vulnerability in Unified Alerting
+- Resolves RHEL-290771
+
+* Wed Oct 21 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.6
+- Rebuild against updated golang
+- Resolves RHEL-287510
+- Resolves RHEL-279380
+- Resolves RHEL-279012
+- Resolves RHEL-278733
+
+* Tue Oct 13 2026 Lauren Chilton <lchilton@redhat.com> - 10.2.6-23.5
+- Resolves RHEL-253159: CVE-2026-15815
+
+* Tue Sep 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.4
+- CVE-2026-42504 grafana: Golang MIME: Denial of Service via maliciously-crafted MIME header [rhel-9.8.z]
+- Resolves RHEL-266519
+
 * Mon Aug 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.3
 - Rebuild against updated golang
 - Resolves RHEL-251872
@@ -1043,7 +1066,7 @@ done
 - Resolves RHEL-241274
 - Resolves RHEL-241243
 
-* Aug 20 2026 Lauren Chilton <lchilton@redhat.com> - 10.2.6-23.2
+* Thu Aug 20 2026 Lauren Chilton <lchilton@redhat.com> - 10.2.6-23.2
 - Resolves RHEL-210991: CVE-2026-33376
 - Resolves RHEL-211022: CVE-2026-33377
 - Resolves RHEL-242865: CVE-2026-8609
