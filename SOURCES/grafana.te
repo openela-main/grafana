@@ -157,8 +157,10 @@ optional_policy(`
 	require {
 		type proc_net_t;
 		class lnk_file { read };
+		class file { read open };
 	}
 	allow grafana_t proc_net_t:lnk_file read;
+	allow grafana_t proc_net_t:file { read open };
 ')
 
 optional_policy(`

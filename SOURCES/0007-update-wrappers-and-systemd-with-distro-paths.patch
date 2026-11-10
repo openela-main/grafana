@@ -1,11 +1,11 @@
-From 5fe02f961e67af04907dc57beda42456128ab1c8 Mon Sep 17 00:00:00 2001
+From cf95173d39c2c6bcbe89ebd12c1474efaa2fc0d3 Mon Sep 17 00:00:00 2001
 From: Sam Feifer <sfeifer@redhat.com>
 Date: Fri, 1 Mar 2024 15:05:24 -0500
 Subject: [PATCH] update wrappers and systemd with distro paths
 
 
 diff --git a/packaging/rpm/systemd/grafana-server.service b/packaging/rpm/systemd/grafana-server.service
-index e3adc3f469..b2e4aced06 100644
+index e3adc3f4697..b2e4aced06f 100644
 --- a/packaging/rpm/systemd/grafana-server.service
 +++ b/packaging/rpm/systemd/grafana-server.service
 @@ -14,7 +14,7 @@ Restart=on-failure
@@ -18,7 +18,7 @@ index e3adc3f469..b2e4aced06 100644
                              --pidfile=${PID_FILE_DIR}/grafana-server.pid            \
                              --packaging=rpm                                         \
 diff --git a/packaging/wrappers/grafana b/packaging/wrappers/grafana
-index 86e0fc9faa..5c88bae4c3 100755
+index 86e0fc9faa2..5c88bae4c3b 100755
 --- a/packaging/wrappers/grafana
 +++ b/packaging/wrappers/grafana
 @@ -5,7 +5,7 @@
@@ -61,7 +61,7 @@ index 86e0fc9faa..5c88bae4c3 100755
 +fi
 \ No newline at end of file
 diff --git a/packaging/wrappers/grafana-server b/packaging/wrappers/grafana-server
-index 466b0d7c69..6be356f562 100755
+index 466b0d7c690..6be356f562c 100755
 --- a/packaging/wrappers/grafana-server
 +++ b/packaging/wrappers/grafana-server
 @@ -7,7 +7,8 @@

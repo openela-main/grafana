@@ -1,4 +1,4 @@
-From ed8a438d72a667844ae07804491b568ad2f5dcdd Mon Sep 17 00:00:00 2001
+From a5fa7c218a70654f3bbbe76f9ca2951ff17f91e6 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Thu, 23 Jun 2022 17:00:46 +0200
 Subject: [PATCH] skip marketplace plugin install test
@@ -8,10 +8,10 @@ Network connectivity is disabled in the build environment for security
 reasons, therefore we need to disable this test.
 
 diff --git a/pkg/tests/api/plugins/api_plugins_test.go b/pkg/tests/api/plugins/api_plugins_test.go
-index 4fc2295ed8..a326c40b04 100644
+index 86158deafbc..7aba79bd499 100644
 --- a/pkg/tests/api/plugins/api_plugins_test.go
 +++ b/pkg/tests/api/plugins/api_plugins_test.go
-@@ -71,6 +71,7 @@ func TestIntegrationPlugins(t *testing.T) {
+@@ -82,6 +82,7 @@ func TestIntegrationPlugins(t *testing.T) {
  		})
  
  		t.Run("Request is not forbidden if from an admin", func(t *testing.T) {

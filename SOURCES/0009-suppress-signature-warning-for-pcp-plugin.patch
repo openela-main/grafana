@@ -1,0 +1,23 @@
+From e9949a271828e75a7a9095792bff049a5cd5d3a1 Mon Sep 17 00:00:00 2001
+From: Sam Feifer <sfeifer@redhat.com>
+Date: Wed, 25 Mar 2026 19:19:58 -0400
+Subject: [PATCH] suppress signature warning for pcp plugin
+
+
+diff --git a/public/app/features/plugins/admin/components/PluginDetailsSignature.tsx b/public/app/features/plugins/admin/components/PluginDetailsSignature.tsx
+index 711a29ccadb..c5f0eac72fd 100644
+--- a/public/app/features/plugins/admin/components/PluginDetailsSignature.tsx
++++ b/public/app/features/plugins/admin/components/PluginDetailsSignature.tsx
+@@ -17,9 +17,11 @@ export function PluginDetailsSignature({ className, plugin }: Props): React.Reac
+   const isSignatureValid = plugin.signature === PluginSignatureStatus.valid;
+   const isCore = plugin.signature === PluginSignatureStatus.internal;
+   const isDisabled = plugin.isDisabled && isDisabledDueTooSignatureError(plugin.error);
++  // Suppress signature warning for distro-packaged plugins allowed via allow_loading_unsigned_plugins
++  const isDistroPlugin = plugin.id === 'performancecopilot-pcp-app';
+ 
+   // The basic information is already available in the header
+-  if (isSignatureValid || isCore || isDisabled) {
++  if (isSignatureValid || isCore || isDisabled || isDistroPlugin) {
+     return null;
+   }
+ 

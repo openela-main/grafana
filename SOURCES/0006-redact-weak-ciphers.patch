@@ -1,0 +1,21 @@
+From 35b75b4709df69fb566de51780e26abe3e348446 Mon Sep 17 00:00:00 2001
+From: Stan Cox <scox@redhat.com>
+Date: Wed, 22 Jun 2022 17:05:48 +0200
+Subject: [PATCH] redact weak ciphers
+
+
+diff --git a/pkg/api/http_server.go b/pkg/api/http_server.go
+index afd12214685..2db40b42e88 100644
+--- a/pkg/api/http_server.go
++++ b/pkg/api/http_server.go
+@@ -839,8 +839,8 @@ func (hs *HTTPServer) getDefaultCiphers(tlsVersion uint16, protocol string) []ui
+ 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+ 			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+ 			tls.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+-			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
+-			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
++			//			tls.TLS_RSA_WITH_AES_128_GCM_SHA256,
++			//			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+ 		}
+ 	}
+ 	if protocol == "h2" {

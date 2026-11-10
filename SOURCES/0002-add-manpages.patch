@@ -1,4 +1,4 @@
-From 5b6c18f715808f99c32550fc3b670fc5bf600f72 Mon Sep 17 00:00:00 2001
+From bf16d1ebbd153bf7d973f522abd219970a5dc468 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 17:01:09 +0200
 Subject: [PATCH] add manpages
@@ -6,11 +6,11 @@ Subject: [PATCH] add manpages
 
 diff --git a/docs/man/man1/grafana-cli.1 b/docs/man/man1/grafana-cli.1
 new file mode 100644
-index 0000000000..39c0d5cee0
+index 00000000000..f22507c4ebf
 --- /dev/null
 +++ b/docs/man/man1/grafana-cli.1
-@@ -0,0 +1,63 @@
-+.TH GRAFANA "1" "September 2022" "Grafana cli version 9.0.9" "User Commands"
+@@ -0,0 +1,60 @@
++.TH GRAFANA "1" "March 2026" "Grafana cli version 12.4.2" "User Commands"
 +.SH NAME
 +grafana-cli \- command line administration for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -28,18 +28,15 @@ index 0000000000..39c0d5cee0
 +admin
 +Grafana admin commands
 +.TP
-+cue
-+Cue validation commands
-+.TP
 +help, h
 +Shows a list of commands or help for one command
 +.SS "GLOBAL OPTIONS:"
 +.TP
 +\fB\-\-pluginsDir\fR value
-+path to the grafana plugin directory (default: "/var/lib/grafana/plugins") [$GF_PLUGIN_DIR]
++Path to the Grafana plugin directory (default: "/var/lib/grafana/plugins") [$GF_PLUGIN_DIR]
 +.TP
 +\fB\-\-repo\fR value
-+url to the plugin repository (default: "https://grafana.com/api/plugins") [$GF_PLUGIN_REPO]
++URL to the plugin repository (default: "https://grafana.com/api/plugins") [$GF_PLUGIN_REPO]
 +.TP
 +\fB\-\-pluginUrl\fR value
 +Full url to the plugin zip file instead of downloading the plugin from grafana.com/api [$GF_PLUGIN_URL]
@@ -75,11 +72,11 @@ index 0000000000..39c0d5cee0
 +.BR http://docs.grafana.org/ .
 diff --git a/docs/man/man1/grafana-server.1 b/docs/man/man1/grafana-server.1
 new file mode 100644
-index 0000000000..683a2369cc
+index 00000000000..1b10799c934
 --- /dev/null
 +++ b/docs/man/man1/grafana-server.1
-@@ -0,0 +1,80 @@
-+.TH VERSION "1" "September 2022" "Version 9.0.9" "User Commands"
+@@ -0,0 +1,103 @@
++.TH VERSION "1" "March 2026" "Version 12.4.2" "User Commands"
 +.SH NAME
 +grafana-server \- back-end server for the Grafana metrics dashboard and graph editor
 +.SH DESCRIPTION
@@ -101,6 +98,13 @@ index 0000000000..683a2369cc
 +.B systemctl start grafana-server.service
 +.in
 +.P
++.SH COMMANDS
++.TP
++target
++Target specific grafana services
++.TP
++help, h
++Shows a list of commands or help for one command
 +.SH OPTIONS
 +The
 +.B grafana-server
@@ -111,50 +115,101 @@ index 0000000000..683a2369cc
 +the same (or similar) name in the configuration file.
 +.P
 +.HP
-+\fB\-config\fR string
++\fB\-\-config\fR value
 +.IP
-+path to config file
++Path to config file
 +.HP
-+\fB\-homepath\fR string
++\fB\-\-homepath\fR value
 +.IP
-+path to grafana install/home path, defaults to working directory
++Path to Grafana install/home path, defaults to working directory
 +.HP
-+\fB\-packaging\fR string
++\fB\-\-pidfile\fR value
 +.IP
-+describes the way Grafana was installed (default "unknown")
++Path to Grafana pid file
 +.HP
-+\fB\-pidfile\fR string
++\fB\-\-packaging\fR value
 +.IP
-+path to pid file
++describes the way Grafana was installed (default: "unknown")
 +.HP
-+\fB\-profile\fR
++\fB\-\-configOverrides\fR value
++.IP
++Configuration options to override defaults as a string. e.g. cfg:default.paths.log=/dev/null
++.HP
++\fB\-\-version\fR, \fB\-v\fR
++.IP
++print the version
++.HP
++\fB\-\-vv\fR
++.IP
++prints current version, all dependencies and exits
++.HP
++\fB\-\-profile\fR
 +.IP
 +Turn on pprof profiling
 +.HP
-+\fB\-profile\-addr\fR string
++\fB\-\-profile\-addr\fR value
 +.IP
-+Define custom address for profiling (default "localhost")
++Define custom address for profiling (default: "localhost")
 +.HP
-+\fB\-profile\-port\fR uint
++\fB\-\-profile\-port\fR value
 +.IP
-+Define custom port for profiling (default 6060)
++Define custom port for profiling (default: 6060)
 +.HP
-+\fB\-tracing\fR
++\fB\-\-profile\-block\-rate\fR value
++.IP
++Controls the fraction of goroutine blocking events that are reported in the blocking profile. The profiler aims to sample an average of one blocking event per rate nanoseconds spent blocked. To turn off profiling entirely, use 0 (default: 1)
++.HP
++\fB\-\-profile\-mutex\-rate\fR value
++.IP
++Controls the fraction of mutex contention events that are reported in the mutex profile. On average 1/rate events are reported. To turn off mutex profiling entirely, use 0 (default: 0)
++.HP
++\fB\-\-tracing\fR
 +.IP
 +Turn on tracing
 +.HP
-+\fB\-tracing\-file\fR string
++\fB\-\-tracing\-file\fR value
 +.IP
-+Define tracing output file (default "trace.out")
-+.TP
-+\fB\-v\fR
++Define tracing output file (default: "trace.out")
++.HP
++\fB\-\-help\fR, \fB\-h\fR
 +.IP
-+prints current version and exits
-+.TP
-+\fB\-vv\fR
-+.IP
-+prints current version, all dependencies and exits
++show help
 +.SH "SEE ALSO"
++The full documentation for
++.B Grafana
++is available on-line at
++.BR http://docs.grafana.org/ .
+diff --git a/docs/man/man1/grafana.1 b/docs/man/man1/grafana.1
+new file mode 100644
+index 00000000000..bd4c24e8662
+--- /dev/null
++++ b/docs/man/man1/grafana.1
+@@ -0,0 +1,29 @@
++.TH GRAFANA "1" "March 2026" "Grafana version 12.4.2" "User Commands"
++.SH NAME
++grafana \- metrics dashboard and graph editor
++.SH DESCRIPTION
++.B grafana
++is the main entry point for the Grafana metrics dashboard and graph editor.
++It provides subcommands to start the Grafana server and manage plugins.
++.SH COMMANDS
++.TP
++server
++Start the Grafana back-end server. See
++.BR grafana-server (1)
++for details.
++.TP
++cli
++Command line administration for Grafana. See
++.BR grafana-cli (1)
++for details.
++.TP
++help, h
++Shows a list of commands or help for one command.
++.SH "SEE ALSO"
++.BR grafana-server (1),
++.BR grafana-cli (1).
++.P
 +The full documentation for
 +.B Grafana
 +is available on-line at

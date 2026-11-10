@@ -1,0 +1,37 @@
+From fed1500265045d3464cac032f1a186b387031ffa Mon Sep 17 00:00:00 2001
+From: Sam Feifer <sfeifer@redhat.com>
+Date: Wed, 25 Mar 2026 19:19:07 -0400
+Subject: [PATCH] fix plugin details for versions not in GCOM registry
+
+
+diff --git a/public/app/features/plugins/admin/api.ts b/public/app/features/plugins/admin/api.ts
+index 8f2bc538ba8..724054630b8 100644
+--- a/public/app/features/plugins/admin/api.ts
++++ b/public/app/features/plugins/admin/api.ts
+@@ -51,7 +51,7 @@ export async function getPluginDetails(id: string): Promise<CatalogPluginDetails
+     versions,
+     statusContext: remote?.statusContext ?? '',
+     iam: remote?.json?.iam,
+-    changelog: remote?.changelog || localChangelog,
++    changelog: localChangelog || remote?.changelog,
+     licenseUrl: remote?.licenseUrl,
+     documentationUrl: remote?.documentationUrl,
+     sponsorshipUrl: remote?.sponsorshipUrl,
+@@ -119,7 +119,7 @@ async function getRemotePlugin(id: string): Promise<RemotePlugin | undefined> {
+   }
+ }
+ 
+-async function getPluginVersion(id: string, version: string): Promise<Version> {
++async function getPluginVersion(id: string, version: string): Promise<Version | undefined> {
+   try {
+     const v: PluginVersion = await getBackendSrv().get(`${GCOM_API_ROOT}/plugins/${id}/versions/${version}`);
+ 
+@@ -137,7 +137,7 @@ async function getPluginVersion(id: string, version: string): Promise<Version> {
+       // It can happen that GCOM is not available, in that case we show a limited set of information to the user.
+       error.isHandled = true;
+     }
+-    throw error;
++    return undefined;
+   }
+ }
+ 

@@ -1,14 +1,14 @@
-From 026c4f235fd3bfc741304a5e12e13bd1c7b85eac Mon Sep 17 00:00:00 2001
+From edebb6f199881f9769c579645ddfeb0733dc4509 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 17:05:48 +0200
 Subject: [PATCH] update default configuration
 
 
 diff --git a/conf/defaults.ini b/conf/defaults.ini
-index 9f7cf4a90b..e1e5468bfa 100644
+index d5acfefd5d7..3dac6bd49af 100644
 --- a/conf/defaults.ini
 +++ b/conf/defaults.ini
-@@ -240,7 +240,7 @@ user_agent =
+@@ -295,7 +295,7 @@ user_agent =
  # No ip addresses are being tracked, only simple counters to track
  # running instances, dashboard and error counts. It is very helpful to us.
  # Change this option to false to disable reporting.
@@ -17,7 +17,7 @@ index 9f7cf4a90b..e1e5468bfa 100644
  
  # The name of the distributor of the Grafana instance. Ex hosted-grafana, grafana-labs
  reporting_distributor = grafana-labs
-@@ -249,8 +249,8 @@ reporting_distributor = grafana-labs
+@@ -304,8 +304,8 @@ reporting_distributor = grafana-labs
  # for new versions of grafana. The check is used
  # in some UI views to notify that a grafana update exists.
  # This option does not cause any auto updates, nor send any information
@@ -29,10 +29,10 @@ index 9f7cf4a90b..e1e5468bfa 100644
  # Set to false to disable all checks to https://grafana.com
  # for new versions of plugins. The check is used
 diff --git a/conf/sample.ini b/conf/sample.ini
-index 916de769f9..2f270d4940 100644
+index 604507b1e84..0cc0968c962 100644
 --- a/conf/sample.ini
 +++ b/conf/sample.ini
-@@ -247,7 +247,7 @@
+@@ -282,7 +282,7 @@
  # No ip addresses are being tracked, only simple counters to track
  # running instances, dashboard and error counts. It is very helpful to us.
  # Change this option to false to disable reporting.
@@ -41,7 +41,7 @@ index 916de769f9..2f270d4940 100644
  
  # The name of the distributor of the Grafana instance. Ex hosted-grafana, grafana-labs
  ;reporting_distributor = grafana-labs
-@@ -256,8 +256,8 @@
+@@ -291,8 +291,8 @@
  # for new versions of grafana. The check is used
  # in some UI views to notify that a grafana update exists.
  # This option does not cause any auto updates, nor send any information
@@ -52,7 +52,7 @@ index 916de769f9..2f270d4940 100644
  
  # Set to false to disable all checks to https://grafana.com
  # for new versions of plugins. The check is used
-@@ -427,7 +427,7 @@
+@@ -490,7 +490,7 @@
  
  # Minimum dashboard refresh interval. When set, this will restrict users to set the refresh interval of a dashboard lower than given interval. Per default this is 5 seconds.
  # The interval string is a possibly signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s or 1m.
@@ -61,7 +61,7 @@ index 916de769f9..2f270d4940 100644
  
  # Path to the default home dashboard. If this value is empty, then Grafana uses StaticRootPath + "dashboards/home.json"
  ;default_home_dashboard_path =
-@@ -1411,7 +1411,7 @@
+@@ -1870,7 +1870,7 @@ default_datasource_uid =
  ;enable_alpha = false
  ;app_tls_skip_verify_insecure = false
  # Enter a comma-separated list of plugin identifiers to identify plugins to load even if they are unsigned. Plugins with modified signatures are never loaded.

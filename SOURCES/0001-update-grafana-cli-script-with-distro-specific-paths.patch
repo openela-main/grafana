@@ -1,4 +1,4 @@
-From 1e47ea7adc316e2df3d0081c2c0ebe75ddd6bda0 Mon Sep 17 00:00:00 2001
+From 6c91a24de267022108b83f54a59e342cee058be1 Mon Sep 17 00:00:00 2001
 From: Andreas Gerstmayr <agerstmayr@redhat.com>
 Date: Wed, 22 Jun 2022 16:57:52 +0200
 Subject: [PATCH] update grafana-cli script with distro-specific paths and
@@ -6,7 +6,7 @@ Subject: [PATCH] update grafana-cli script with distro-specific paths and
 
 
 diff --git a/packaging/wrappers/grafana-cli b/packaging/wrappers/grafana-cli
-index 7c6c46aef9..945714642b 100755
+index 7c6c46aef9e..945714642b2 100755
 --- a/packaging/wrappers/grafana-cli
 +++ b/packaging/wrappers/grafana-cli
 @@ -5,7 +5,7 @@
