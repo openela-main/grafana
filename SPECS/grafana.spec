@@ -28,7 +28,7 @@
 
 Name:             grafana
 Version:          9.2.10
-Release:          36%{?dist}
+Release:          38%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -97,12 +97,16 @@ Patch20:          0020-fix-CVE-2026-42127.patch
 Patch21:          0021-fix-CVE-2026-33377.patch
 # https://github.com/grafana/grafana/commit/ed22ed77ee8fc12d6e54b35cb54330c688a7115c
 Patch22:          0022-fix-CVE-2026-15815.patch
+# https://github.com/grafana/grafana/commit/09a3e924a59cc14725b88282d3b0dfe6ab3ec9be
+Patch23:          0023-fix-CVE-2026-17183.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
 Patch1002:        1002-vendor-use-pbkdf2-from-OpenSSL.patch
 Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
 Patch1004:        1004-vendor-fix-idna-unicode-version-gate.patch
+# https://github.com/klauspost/compress/commit/7f5d8528720c895a6106f201719f87eb030a565d
+Patch1005:        1005-vendor-fix-CVE-2026-116591.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -782,6 +786,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 20 -p1
 %patch -P 21 -p1
 %patch -P 22 -p1
+%patch -P 23 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -791,6 +796,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 1003 -p1
 %endif
 %patch -P 1004 -p1
+%patch -P 1005 -p1
 
 
 %build
@@ -1029,6 +1035,14 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Sun Nov 01 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-38
+- CVE-2026-17183 grafana: Grafana: Information disclosure vulnerability in Unified Alerting
+- Resolves RHEL-291857
+
+* Sun Nov 01 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-37
+- CVE-2026-116591 grafana: klauspost/compress: Denial of Service via crafted zstd compressed input
+- Resolves RHEL-298352
+
 * Wed Oct 21 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-36
 - Rebuild against updated golang
 - Resolves RHEL-287629
