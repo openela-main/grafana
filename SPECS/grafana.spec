@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          10.2.6
-Release:          23%{?dist}.7
+Release:          24%{?dist}.8
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -76,22 +76,24 @@ Patch13:          0013-fix-CVE-2025-4123.patch
 Patch14:          0014-Fix-CVE-2026-21721.patch
 Patch15:          0015-Fix-CVE-2026-27877.patch
 Patch16:          0016-fix-x-net-CVE.patch
+Patch17:          0017-fix-CVE-2026-33376.patch
+Patch18:          0018-fix-CVE-2026-33377.patch
+# https://github.com/grafana/grafana/commit/f70d3e480274a5dbd12006338c393f4b05d441ca
+Patch19:          0019-fix-CVE-2026-33382.patch
 # https://github.com/grafana/grafana/commit/82ef13993059351bf21de35b8488bbd9b42df4f4
-Patch17:          0017-fix-CVE-2026-42127.patch
-Patch18:          0018-fix-CVE-2026-33376.patch
-Patch19:          0019-fix-CVE-2026-33377.patch
 Patch20:          0020-fix-CVE-2026-8609.patch
-Patch21:          0021-fix-CVE-2026-33382.patch
-Patch22:          0022-fix-CVE-2026-15815.patch
-# https://github.com/grafana/grafana/pull/131061
-Patch23:          0023-fix-CVE-2026-17183.patch
+# https://github.com/grafana/grafana/commit/3db12332b66497c31f8ad2a5fb0eb0fe0ca05a7e
+Patch21:          0021-fix-CVE-2026-15815.patch
+# https://github.com/grafana/grafana/commit/3c98af3ba0773ad12a8a54b1faec7dc62d8d6725
+Patch22:          0022-fix-CVE-2026-88967.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
-Patch1002:        1002-vendor-use-pbkdf2-from-OpenSSL.patch
 Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
 Patch1004:        1004-vendor-Redacted-Url-in-logs.patch
 Patch1005:        1005-vendor-fix-idna-unicode-version-gate.patch
+# https://github.com/klauspost/compress/commit/7f5d8528720c895a6106f201719f87eb030a565d
+Patch1006:        1006-vendor-fix-CVE-2026-116591.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -790,17 +792,16 @@ rm -r plugins-bundled
 %patch -P 20 -p1
 %patch -P 21 -p1
 %patch -P 22 -p1
-%patch -P 23 -p1
 
 %patch -P 1001 -p1
-%if %{enable_fips_mode}
-%patch -P 1002 -p1
-%endif
+# x/crypto/pbkdf2 now delegates to crypto/pbkdf2 and Go's native FIPS module.
+# Do not apply the legacy OpenSSL patch, which requires crypto/boring.
 %ifarch s390x i686 armv7hl
 %patch -P 1003 -p1
 %endif
 %patch -P 1004 -p1
 %patch -P 1005 -p1
+%patch -P 1006 -p1
 
 
 %build
@@ -814,7 +815,7 @@ rm -r plugins-bundled
 # required since RHEL 8.8 to fix the following error:
 # "imports crypto/boring: build constraints exclude all Go files in /usr/lib/golang/src/crypto/boring"
 # can be removed in a future Go release
-#export GOEXPERIMENT=boringcrypto
+# export GOEXPERIMENT=boringcrypto
 # see grafana-X.Y.Z/pkg/build/cmd.go
 export LDFLAGS="-X main.version=%{version} -X main.buildstamp=${SOURCE_DATE_EPOCH}"
 for cmd in grafana grafana-cli grafana-server; do
@@ -1037,56 +1038,62 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
-* Fri Oct 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.7
-- CVE-2026-17183 grafana: Grafana: Information disclosure vulnerability in Unified Alerting
-- Resolves RHEL-290771
+* Sun Nov 01 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.8
+- CVE-2026-116591 grafana: klauspost/compress: Denial of Service via crafted
+  zstd compressed input
+- Resolves RHEL-298397
 
-* Wed Oct 21 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.6
+* Thu Oct 29 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.7
+- CVE-2026-88967 grafana: Azure Monitor data source could leak its Azure access token
+- Resolves RHEL-285974
+
+* Fri Oct 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.6
+- CVE-2026-94440 grafana: golang: Denial of Service via memory limit bypass in multipart form parsing
+  bypass in multipart form parsing
+- Resolves RHEL-290785
+
+* Thu Oct 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.5
 - Rebuild against updated golang
-- Resolves RHEL-287510
-- Resolves RHEL-279380
-- Resolves RHEL-279012
-- Resolves RHEL-278733
+- Resolves RHEL-285428
+- Resolves RHEL-286786
 
-* Tue Oct 13 2026 Lauren Chilton <lchilton@redhat.com> - 10.2.6-23.5
-- Resolves RHEL-253159: CVE-2026-15815
-
-* Tue Sep 22 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.4
-- CVE-2026-42504 grafana: Golang MIME: Denial of Service via maliciously-crafted MIME header [rhel-9.8.z]
-- Resolves RHEL-266519
-
-* Mon Aug 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.3
+* Wed Oct 21 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.4
 - Rebuild against updated golang
-- Resolves RHEL-251872
-- Resolves RHEL-251758
-- Resolves RHEL-242365
-- Resolves RHEL-242251
-- Resolves RHEL-241980
-- Resolves RHEL-241756
-- Resolves RHEL-241274
-- Resolves RHEL-241243
+- Resolves RHEL-287516
 
-* Thu Aug 20 2026 Lauren Chilton <lchilton@redhat.com> - 10.2.6-23.2
-- Resolves RHEL-210991: CVE-2026-33376
-- Resolves RHEL-211022: CVE-2026-33377
-- Resolves RHEL-242865: CVE-2026-8609
-- Resolves RHEL-242866: CVE-2026-33382
+* Mon Oct 12 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.3
+- CVE-2026-15815 grafana: PLUGIN ARCHIVE EXTRACTION ESCAPES THE PLUGIN DIRECTORY, ALLOWING CODE EXECUTION
+  PLUGIN DIRECTORY, ALLOWING CODE EXECUTION
+- Resolves RHEL-253164
 
-* Thu Jul 30 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-23.1
-- fix CVE-2026-42127: cap request body size and validate public dashboard access
-- Resolves RHEL-219382
+* Wed Sep 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.2
+- CVE-2026-8609 grafana: Grafana: Denial of Service via unbounded
+  memory growth in OAuth login route [rhel-9.9]
+- Resolves RHEL-267241
 
-* Thu Jul 02 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-23
-- Resolves RHEL-183803: CVE-2026-39821
-- Resolves RHEL-188280
+* Wed Sep 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.1
+- CVE-2026-33382 grafana: Grafana: Denial of Service via excessive memory allocation from large API request payloads [rhel-9.9]
+  allocation from large API request payloads [rhel-9.9]
+- Resolves RHEL-267244
+
+* Tue Sep 08 2026 Lauren Chilton <lchilton@redhat.com> 10.2.6-24
+- Resolves RHEL-210983: CVE-2026-33376
+- Resolves RHEL-211016: CVE-2026-33377
+
+* Thu Jul 09 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-23
+- Resolves RHEL-183848: CVE-2026-39821
+- Resolves RHEL-191577: CVE-2026-27136
+- Resolves RHEL-188281: Remove Lua ExclusiveArch macro for Konflux build
 
 * Wed Apr 22 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-22
-- Resolves RHEL-161803: CVE-2026-27877
-- Resolves RHEL-166678: CVE-2026-32282
-- Resolves RHEL-167678: CVE-2026-32283
+- Resolves RHEL-161804: CVE-2026-27877
+- Resolves RHEL-166346: CVE-2026-33810
+- Resolves RHEL-166703: CVE-2026-32282
+- Resolves RHEL-167390: CVE-2026-32280
+- Resolves RHEL-167696: CVE-2026-32283
 
 * Wed Apr 1 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-21
-- Resolves RHEL-158767: CVE-2026-25679
+- Resolves RHEL-156658: CVE-2026-25679
 
 * Tue Feb 17 2026 Sam Feifer <sfeifer@redhat.com> 10.2.6-20
 - Resolves RHEL-144960: CVE-2026-21721
