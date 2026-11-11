@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          12.4.3
-Release:          2%{?dist}
+Release:          3%{?dist}.2
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -69,6 +69,12 @@ Patch7:           0007-update-wrappers-and-systemd-with-distro-paths.patch
 Patch8:           0008-fix-plugin-details-for-versions-not-in-GCOM-registry.patch
 Patch9:           0009-suppress-signature-warning-for-pcp-plugin.patch
 Patch10:          0010-update-golang-x-net-to-v0.56.0.patch
+Patch11:          0011-fix-CVE-2026-33376.patch
+Patch12:          0012-fix-CVE-2026-33377.patch
+Patch13:          0013-fix-CVE-2026-33382.patch
+Patch14:          0014-fix-CVE-2026-8609.patch
+Patch15:          0015-fix-CVE-2026-15815.patch
+Patch16:          0016-fix-CVE-2026-76154.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -894,6 +900,12 @@ SELinux policy module supporting grafana
 %patch -P 8 -p1
 %patch -P 9 -p1
 %patch -P 10 -p1
+%patch -P 11 -p1
+%patch -P 12 -p1
+%patch -P 13 -p1
+%patch -P 14 -p1
+%patch -P 15 -p1
+%patch -P 16 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -915,9 +927,6 @@ SELinux policy module supporting grafana
 
 # see grafana-X.Y.Z/pkg/build/cmd.go
 export LDFLAGS="-X main.version=%{version} -X main.buildstamp=${SOURCE_DATE_EPOCH}"
-%if %{enable_fips_mode}
-export GOEXPERIMENT=boringcrypto
-%endif
 for cmd in grafana grafana-cli grafana-server; do
     %gobuild -o %{_builddir}/bin/${cmd} ./pkg/cmd/${cmd}
 done
@@ -1045,9 +1054,6 @@ yarn run jest
 # which is usually true except if the daylight saving time change falls into the last 10 days, then it's either 239 or 241 hours...
 # let's set the time zone to a time zone without daylight saving time
 export TZ=GMT
-%if %{enable_fips_mode}
-export GOEXPERIMENT=boringcrypto
-%endif
 
 # comment out temporarily while intermittent ngalert tests are investigated
 # % gotest ./pkg/...
@@ -1141,6 +1147,20 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Wed Oct 14 2026 Lauren Chilton <lchilton@redhat.com> - 12.4.3-3.2
+- Resolves RHEL-254111: CVE-2026-76154
+
+* Mon Oct 12 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.1
+- CVE-2026-15815 grafana: PLUGIN ARCHIVE EXTRACTION ESCAPES THE PLUGIN DIRECTORY, ALLOWING CODE EXECUTION
+  THE PLUGIN DIRECTORY, ALLOWING CODE EXECUTION
+- Resolves RHEL-253126
+
+* Wed Aug 26 2026 Lauren Chilton <lchilton@redhat.com> 12.4.3-3
+- Resolves RHEL-210982: CVE-2026-33376
+- Resolves RHEL-211021: CVE-2026-33377
+- Resolves RHEL-211388: CVE-2026-33382
+- Resolves RHEL-211375: CVE-2026-8609
+
 * Tue Jul 7 2026 Sam Feifer <sfeifer@redhat.com> 12.4.3-2
 - Resolves RHEL-183692: CVE-2026-39821
 - Resolves RHEL-188283: Remove Lua ExclusiveArch macro for Konflux build
