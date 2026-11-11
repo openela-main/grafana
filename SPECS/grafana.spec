@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          12.4.3
-Release:          3%{?dist}.2
+Release:          3%{?dist}.6
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -75,12 +75,17 @@ Patch13:          0013-fix-CVE-2026-33382.patch
 Patch14:          0014-fix-CVE-2026-8609.patch
 Patch15:          0015-fix-CVE-2026-15815.patch
 Patch16:          0016-fix-CVE-2026-76154.patch
+# https://github.com/grafana/grafana/commit/3c98af3ba0773ad12a8a54b1faec7dc62d8d6725
+Patch17:          0017-fix-CVE-2026-88967.patch
+# https://github.com/grafana/grafana/commit/3c98af3ba0773ad12a8a54b1faec7dc62d8d6725
+Patch18:          0018-fix-CVE-2026-100105.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
-Patch1002:        1002-vendor-use-pbkdf2-from-OpenSSL.patch
 Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
 Patch1004:        1004-vendor-fix-idna-unicode-version-gate.patch
+# https://github.com/klauspost/compress/commit/748550b77336a1720b51f574d344ab98422c5e2a
+Patch1005:        1005-vendor-fix-CVE-2026-116591.patch
 
 %if 0%{?fedora} >= 45 || 0%{?rhel} >= 10
 ExcludeArch: %{ix86}
@@ -906,15 +911,16 @@ SELinux policy module supporting grafana
 %patch -P 14 -p1
 %patch -P 15 -p1
 %patch -P 16 -p1
+%patch -P 17 -p1
+%patch -P 18 -p1
 
 %patch -P 1001 -p1
-%if %{enable_fips_mode}
-%patch -P 1002 -p1
-%endif
+# x/crypto/pbkdf2 delegates to crypto/pbkdf2; use the toolchain's FIPS support.
 %ifarch s390x i686 armv7hl
 %patch -P 1003 -p1
 %endif
 %patch -P 1004 -p1
+%patch -P 1005 -p1
 
 
 %build
@@ -1147,6 +1153,27 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Sun Nov 01 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.6
+- CVE-2026-116591 grafana: klauspost/compress: Denial of Service via crafted zstd compressed input
+- Resolves RHEL-298659
+
+* Sat Oct 31 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.5
+- CVE-2026-100105 grafana: Grafana: Information disclosure via legacy schema switch in contact points
+- Resolves RHEL-298230
+
+* Thu Oct 29 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.4
+- CVE-2026-88967 grafana: Azure Monitor data source could leak its Azure access token
+- Resolves RHEL-285932
+
+* Fri Oct 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.3
+- Rebuild against updated golang
+- Drop obsolete OpenSSL PBKDF2 patch; use the standard library implementation
+- Resolves RHEL-291328
+- Resolves RHEL-290348
+- Resolves RHEL-286774
+- Resolves RHEL-285419
+- Resolves RHEL-279311
+
 * Wed Oct 14 2026 Lauren Chilton <lchilton@redhat.com> - 12.4.3-3.2
 - Resolves RHEL-254111: CVE-2026-76154
 
