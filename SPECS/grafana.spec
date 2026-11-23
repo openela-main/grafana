@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          12.4.3
-Release:          3%{?dist}.6
+Release:          3%{?dist}.7
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -79,6 +79,8 @@ Patch16:          0016-fix-CVE-2026-76154.patch
 Patch17:          0017-fix-CVE-2026-88967.patch
 # https://github.com/grafana/grafana/commit/3c98af3ba0773ad12a8a54b1faec7dc62d8d6725
 Patch18:          0018-fix-CVE-2026-100105.patch
+# https://github.com/grafana/grafana/commit/f8dac983f9599e0f51c562ee8bccedefd0efc216
+Patch19:          0019-fix-CVE-2026-9703.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -913,6 +915,7 @@ SELinux policy module supporting grafana
 %patch -P 16 -p1
 %patch -P 17 -p1
 %patch -P 18 -p1
+%patch -P 19 -p1
 
 %patch -P 1001 -p1
 # x/crypto/pbkdf2 delegates to crypto/pbkdf2; use the toolchain's FIPS support.
@@ -1153,6 +1156,9 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Wed Nov 11 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.7
+- CVE-2026-9703 grafana: Grafana: Viewer can modify alerting rules without authorization
+
 * Sun Nov 01 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.6
 - CVE-2026-116591 grafana: klauspost/compress: Denial of Service via crafted zstd compressed input
 - Resolves RHEL-298659
