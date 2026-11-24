@@ -28,7 +28,7 @@
 
 Name:             grafana
 Version:          9.2.10
-Release:          38%{?dist}
+Release:          39%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -99,6 +99,7 @@ Patch21:          0021-fix-CVE-2026-33377.patch
 Patch22:          0022-fix-CVE-2026-15815.patch
 # https://github.com/grafana/grafana/commit/09a3e924a59cc14725b88282d3b0dfe6ab3ec9be
 Patch23:          0023-fix-CVE-2026-17183.patch
+Patch24:          0024-fix-CVE-2026-9703.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -787,6 +788,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %patch -P 21 -p1
 %patch -P 22 -p1
 %patch -P 23 -p1
+%patch -P 24 -p1
 
 %patch -P 1001 -p1
 %if %{enable_fips_mode}
@@ -1035,6 +1037,9 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Thu Nov 19 2026 Lauren Chilton <lchilton@redhat.com> - 9.2.10-39
+- Resolves RHEL-219595: CVE-2026-9703
+
 * Sun Nov 01 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-38
 - CVE-2026-17183 grafana: Grafana: Information disclosure vulnerability in Unified Alerting
 - Resolves RHEL-291857
