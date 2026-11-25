@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          12.4.3
-Release:          3%{?dist}.7
+Release:          3%{?dist}.11
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -81,6 +81,12 @@ Patch17:          0017-fix-CVE-2026-88967.patch
 Patch18:          0018-fix-CVE-2026-100105.patch
 # https://github.com/grafana/grafana/commit/f8dac983f9599e0f51c562ee8bccedefd0efc216
 Patch19:          0019-fix-CVE-2026-9703.patch
+# https://github.com/grafana/grafana/commit/9689e9f44d9e2680534492cbc996594ab70e6a6e
+Patch20:          0020-fix-CVE-2026-102589.patch
+# https://github.com/grafana/grafana/commit/9689e9f44d9e2680534492cbc996594ab70e6a6e
+Patch21:          0021-fix-CVE-2026-106475.patch
+# https://github.com/grafana/grafana/commit/9689e9f44d9e2680534492cbc996594ab70e6a6e
+Patch22:          0022-fix-CVE-2026-111000.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -88,6 +94,8 @@ Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
 Patch1004:        1004-vendor-fix-idna-unicode-version-gate.patch
 # https://github.com/klauspost/compress/commit/748550b77336a1720b51f574d344ab98422c5e2a
 Patch1005:        1005-vendor-fix-CVE-2026-116591.patch
+# https://github.com/golang/net/commit/28247830e9fb37184c6be718f483a0c7d0949022
+Patch1006:        1006-vendor-fix-CVE-2026-78660.patch
 
 %if 0%{?fedora} >= 45 || 0%{?rhel} >= 10
 ExcludeArch: %{ix86}
@@ -916,6 +924,9 @@ SELinux policy module supporting grafana
 %patch -P 17 -p1
 %patch -P 18 -p1
 %patch -P 19 -p1
+%patch -P 20 -p1
+%patch -P 21 -p1
+%patch -P 22 -p1
 
 %patch -P 1001 -p1
 # x/crypto/pbkdf2 delegates to crypto/pbkdf2; use the toolchain's FIPS support.
@@ -924,6 +935,7 @@ SELinux policy module supporting grafana
 %endif
 %patch -P 1004 -p1
 %patch -P 1005 -p1
+%patch -P 1006 -p1
 
 
 %build
@@ -1156,6 +1168,22 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Thu Nov 19 2026 Lauren Chilton <lchilton@redhat.com> - 12.4.3-3.11
+- Resolves: RHEL-302970: CVE-2026-111000
+
+* Sat Nov 14 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.10
+- CVE-2026-78660 grafana: net/http: HTTP response smuggling via malformed HTTP/2
+  framing headers
+- Resolves RHEL-306854: CVE-2026-78660
+
+* Thu Nov 12 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.9
+- CVE-2026-106475 grafana: ELASTICSEARCH DATA SOURCE COULD BE USED TO SEND ARBITRARY REQUESTS TO ELASTICSEARCH
+- Resolves RHEL-298879: CVE-2026-106475
+
+* Thu Nov 12 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.8
+- CVE-2026-102589 grafana: IMAGE RENDER KEYS COULD BE REPLAYED ACROSS GRAFANA INSTANCES THAT SHARE A RENDERER TOKEN
+- Resolves RHEL-298868: CVE-2026-102589
+
 * Wed Nov 11 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 12.4.3-3.7
 - CVE-2026-9703 grafana: Grafana: Viewer can modify alerting rules without authorization
 
