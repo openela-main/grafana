@@ -28,7 +28,7 @@
 
 Name:             grafana
 Version:          9.2.10
-Release:          39%{?dist}
+Release:          40%{?dist}
 Summary:          Metrics dashboard and graph editor
 License:          AGPLv3
 URL:              https://grafana.org
@@ -108,6 +108,8 @@ Patch1003:        1003-vendor-skip-goldenfiles-tests.patch
 Patch1004:        1004-vendor-fix-idna-unicode-version-gate.patch
 # https://github.com/klauspost/compress/commit/7f5d8528720c895a6106f201719f87eb030a565d
 Patch1005:        1005-vendor-fix-CVE-2026-116591.patch
+# https://github.com/golang/net/commit/28247830e9fb37184c6be718f483a0c7d0949022
+Patch1006:        1006-vendor-fix-CVE-2026-78660.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -799,6 +801,7 @@ cp -p %{SOURCE8} %{SOURCE9} %{SOURCE10} SELinux
 %endif
 %patch -P 1004 -p1
 %patch -P 1005 -p1
+%patch -P 1006 -p1
 
 
 %build
@@ -1037,8 +1040,13 @@ fi
 %{_datadir}/selinux/*/grafana.pp
 
 %changelog
+* Mon Nov 23 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-40
+- CVE-2026-78660 grafana: net/http: HTTP response smuggling via malformed HTTP/2 framing headers
+- Resolves RHEL-306791
+
 * Thu Nov 19 2026 Lauren Chilton <lchilton@redhat.com> - 9.2.10-39
 - Resolves RHEL-219595: CVE-2026-9703
+
 
 * Sun Nov 01 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 9.2.10-38
 - CVE-2026-17183 grafana: Grafana: Information disclosure vulnerability in Unified Alerting
