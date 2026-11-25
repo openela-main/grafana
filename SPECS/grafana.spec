@@ -18,7 +18,7 @@
 
 Name:             grafana
 Version:          10.2.6
-Release:          24%{?dist}.9
+Release:          24%{?dist}.12
 Summary:          Metrics dashboard and graph editor
 License:          AGPL-3.0-only
 URL:              https://grafana.org
@@ -88,6 +88,10 @@ Patch21:          0021-fix-CVE-2026-15815.patch
 Patch22:          0022-fix-CVE-2026-88967.patch
 # https://github.com/grafana/grafana/commit/1f48319059aae4ee4dddedb8c265f23fd008c19c
 Patch23:          0023-fix-CVE-2026-9703.patch
+# https://github.com/grafana/grafana/commit/9689e9f44d9e2680534492cbc996594ab70e6a6e
+Patch24:          0024-fix-CVE-2026-102589.patch
+# https://github.com/grafana/grafana/commit/9689e9f44d9e2680534492cbc996594ab70e6a6e
+Patch25:          0025-fix-CVE-2026-106475.patch
 
 # Patches affecting the vendor tarball
 Patch1001:        1001-vendor-patch-removed-backend-crypto.patch
@@ -96,6 +100,8 @@ Patch1004:        1004-vendor-Redacted-Url-in-logs.patch
 Patch1005:        1005-vendor-fix-idna-unicode-version-gate.patch
 # https://github.com/klauspost/compress/commit/7f5d8528720c895a6106f201719f87eb030a565d
 Patch1006:        1006-vendor-fix-CVE-2026-116591.patch
+# https://github.com/golang/net/commit/28247830e9fb37184c6be718f483a0c7d0949022
+Patch1007:        1007-vendor-fix-CVE-2026-78660.patch
 
 # Intersection of go_arches and nodejs_arches
 ExclusiveArch:    %{grafana_arches}
@@ -795,6 +801,8 @@ rm -r plugins-bundled
 %patch -P 21 -p1
 %patch -P 22 -p1
 %patch -P 23 -p1
+%patch -P 24 -p1
+%patch -P 25 -p1
 
 %patch -P 1001 -p1
 # x/crypto/pbkdf2 now delegates to crypto/pbkdf2 and Go's native FIPS module.
@@ -805,6 +813,7 @@ rm -r plugins-bundled
 %patch -P 1004 -p1
 %patch -P 1005 -p1
 %patch -P 1006 -p1
+%patch -P 1007 -p1
 
 
 %build
@@ -1041,6 +1050,18 @@ done
 %ghost %verify(not md5 size mode mtime) %{_sharedstatedir}/selinux/*/active/modules/200/grafana
 
 %changelog
+* Fri Nov 13 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.12
+- CVE-2026-78660 grafana: net/http: HTTP response smuggling via malformed HTTP/2 framing headers
+- Resolves RHEL-306959: CVE-2026-78660
+
+* Thu Nov 12 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.11
+- CVE-2026-106475 grafana: ELASTICSEARCH DATA SOURCE COULD BE USED TO SEND ARBITRARY REQUESTS TO ELASTICSEARCH
+- Resolves RHEL-298891: CVE-2026-106475
+
+* Thu Nov 12 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.10
+- CVE-2026-102589 grafana: IMAGE RENDER KEYS COULD BE REPLAYED ACROSS GRAFANA INSTANCES THAT SHARE A RENDERER TOKEN
+- Resolves RHEL-298877: CVE-2026-102589
+
 * Wed Nov 11 2026 RHEL Packaging Agent <redhat-ymir-agent@redhat.com> - 10.2.6-24.9
 - CVE-2026-9703 grafana: Grafana: Viewer can modify alerting rules without authorization
 - Resolves RHEL-304663: CVE-2026-9703
